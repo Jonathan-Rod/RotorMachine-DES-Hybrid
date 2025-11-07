@@ -94,11 +94,11 @@ class DESPermutation:
 
         blocks_7bits = []
         for i in range(8):
-            block = key_64bits[i * 7 : (i + 1) * 7]
-            block = block[1:]  # Remove parity bit
-            blocks_7bits.append(block)
+            block = key_64bits[i * 8 : (i + 1) * 8]  # Bloque de 8 bits
+            block_without_parity = block[:i] + block[i+1:]  # Remove parity bit
+            blocks_7bits.append(block_without_parity)
 
-
+        blocks_7bits = "".join(blocks_7bits)
         return blocks_7bits
 
     def permuted_choice_2(self):
