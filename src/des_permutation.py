@@ -93,7 +93,7 @@ class DESPermutation:
         # and so on until index 6
 
         blocks_7bits = []
-        for i in range(8):
+        for i in range(8): # TODO Can be a external function in parser class
             block = key_64bits[i * 8 : (i + 1) * 8]  # Bloque de 8 bits
             block_without_parity = block[:i] + block[i+1:]  # Remove parity bit
             blocks_7bits.append(block_without_parity)
@@ -101,10 +101,15 @@ class DESPermutation:
         blocks_7bits = "".join(blocks_7bits)
         return blocks_7bits
 
-    def permuted_choice_2(self):
+    def permuted_choice_2(self, key_56bits: str):
         # TODO Permutation of 56-bit key
+        # TODO Split key into 2 equal parts (28 bits each)
+        # TODO left circular shift again to each part
+        # TODO Concatenate both parts and apply pemutation
+        # TODO Removes parity bits again
         # returns 48-bit (subkey for round i)
-        pass
+        subkey = "" # TODO
+        return subkey
 
     def e_table(self, block_32bits):
         # Expansion of 32-bit

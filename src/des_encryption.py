@@ -4,13 +4,13 @@ from des_parser import DESParser
 
 
 class DESEncryption:
-    def __init__(self, key, rounds=16):
-        self.key = key
+    def __init__(self, rounds=16):
+        # self.key = key
         self.rounds = rounds
         self.permutation = DESPermutation()  # TODO
         self.bit_converter = DESBitConverter()  # TODO
         self.parser = DESParser()
-        self.subkeys = self._generate_subkeys()  # TODO
+        self.subkeys = self._generate_subkeys()  # TODO 48 bits each subkey
 
     def left_circular_shift(self, block_56bits):
         # TODO Apply left circular shift to block_56bits
@@ -19,17 +19,33 @@ class DESEncryption:
 
     def _generate_subkeys(self):
         # TODO Generate all rounds subkeys
+        # TODO key 64-bits
+        key_64bits = ""  # TODO
         # TODO permutation.permuted_choice_1
-        # TODO left_circular_shift
-        # TODO permutation.permuted_choice_2
-        # returns subkeys list
+        key_56bits = self.permutation.permuted_choice_1(key_64bits)
+        # TODO inside a for loop self.rounds
+        subkeys = []
+        for i in range(self.rounds):
+            # TODO left_circular_shift
+            if i == 0:
+                shifted_key_56bits = self.left_circular_shift(key_56bits)
+            else:
+                shifted_key_56bits = self.left_circular_shift(shifted_key_56bits)
 
-        pass
+            # TODO permutation.permuted_choice_2
+            subkey = self.permutation.permuted_choice_2(shifted_key_56bits)
+            subkeys.append(subkey)
 
-    def _xor(self, x_bits, y_bits):
+        return subkeys
+
+    def _xor(self, x_bits: str, y_bits: str):
         # TODO Apply XOR to x_bits and y_bits (same length)
         # returns xor_bits
-        pass
+        if len(x_bits) != len(y_bits):
+            raise ValueError("Input bit strings must be of equal length")
+
+        xor_bits = "".join(str(int(a) ^ int(b)) for a, b in zip(x_bits, y_bits))
+        return xor_bits
 
     def _sbox(self, block_48bits):
         # TODO Apply S-box to block_48bits
