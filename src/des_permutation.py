@@ -1,13 +1,7 @@
 class DESPermutation:
-    def __init__(self):
-        pass
-
-    def initial_permutation(self, block_64bits):
-        # Permutation of 64-bit block
-        # returns 64-bit
-
+    def __init__(self):  # TODO
         # DES Initial Permutation table
-        initial_permut_table = [
+        self.init_permutation_table = [
             58,
             50,
             42,
@@ -73,11 +67,138 @@ class DESPermutation:
             15,
             7,
         ]
+
+        # DES Expansion table
+        self.expansion_table = [
+            32,
+            1,
+            2,
+            3,
+            4,
+            5,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29,
+            28,
+            29,
+            30,
+            31,
+            32,
+            1,
+        ]
+
+        # DES Inverse Initial Permutation table
+        self.inverse_init_permutation_table = [
+            40,
+            8,
+            48,
+            16,
+            56,
+            24,
+            64,
+            32,
+            39,
+            7,
+            47,
+            15,
+            55,
+            23,
+            63,
+            31,
+            38,
+            6,
+            46,
+            14,
+            54,
+            22,
+            62,
+            30,
+            37,
+            5,
+            45,
+            13,
+            53,
+            21,
+            61,
+            29,
+            36,
+            4,
+            44,
+            12,
+            52,
+            20,
+            60,
+            28,
+            35,
+            3,
+            43,
+            11,
+            51,
+            19,
+            59,
+            27,
+            34,
+            2,
+            42,
+            10,
+            50,
+            18,
+            58,
+            26,
+            33,
+            1,
+            41,
+            9,
+            49,
+            17,
+            57,
+            25,
+        ]
+
+        # TODO Need to add other tables
+
+    def initial_permutation(self, block_64bits: str):
+        # Permutation of 64-bit block
+        # returns 64-bit
+
         block = block_64bits
 
         # Perform permutation
         permuted = ""
-        for pos in initial_permut_table:
+        for pos in self.init_permutation_table:
             # The permutation table uses 1-based indexing (to match presentation), so subtract 1
             permuted += block[pos - 1]
 
@@ -93,9 +214,9 @@ class DESPermutation:
         # and so on until index 6
 
         blocks_7bits = []
-        for i in range(8): # TODO Can be a external function in parser class
+        for i in range(8):  # TODO Can be a external function in parser class
             block = key_64bits[i * 8 : (i + 1) * 8]  # Bloque de 8 bits
-            block_without_parity = block[:i] + block[i+1:]  # Remove parity bit
+            block_without_parity = block[:i] + block[i + 1 :]  # Remove parity bit
             blocks_7bits.append(block_without_parity)
 
         blocks_7bits = "".join(blocks_7bits)
@@ -108,156 +229,39 @@ class DESPermutation:
         # TODO Concatenate both parts and apply pemutation
         # TODO Removes parity bits again
         # returns 48-bit (subkey for round i)
-        subkey = "" # TODO
+        subkey = ""  # TODO
         return subkey
 
-    def e_table(self, block_32bits):
+    def e_table(self, block_32bits: str):
         # Expansion of 32-bit
         # returns 48-bit
 
-        E_TABLE = [
-            32,
-            1,
-            2,
-            3,
-            4,
-            5,
-            4,
-            5,
-            6,
-            7,
-            8,
-            9,
-            8,
-            9,
-            10,
-            11,
-            12,
-            13,
-            12,
-            13,
-            14,
-            15,
-            16,
-            17,
-            16,
-            17,
-            18,
-            19,
-            20,
-            21,
-            20,
-            21,
-            22,
-            23,
-            24,
-            25,
-            24,
-            25,
-            26,
-            27,
-            28,
-            29,
-            28,
-            29,
-            30,
-            31,
-            32,
-            1,
-        ]
-
         expanded_block = ""
-        for pos in E_TABLE:
+        for pos in self.expansion_table:
             expanded_block += block_32bits[pos - 1]
 
         return expanded_block
 
-    def p_box(self, block_32bits):
+    def p_box(self, block_32bits: str):
         # TODO P-box permutation of 32-bit
         # returns pbox_32bits
 
         pass
 
-    def inverse_initial_permutation(self, block_64bits):
+    def inverse_initial_permutation(self, block_64bits: str):
         # Inverse initial permutation of 64-bit ciphertext using the positions where the original bits where before permutation.
         # returns 64-bit (ciphertext block)
-
-        inverse_initial_permut_table = [
-            40,
-            8,
-            48,
-            16,
-            56,
-            24,
-            64,
-            32,
-            39,
-            7,
-            47,
-            15,
-            55,
-            23,
-            63,
-            31,
-            38,
-            6,
-            46,
-            14,
-            54,
-            22,
-            62,
-            30,
-            37,
-            5,
-            45,
-            13,
-            53,
-            21,
-            61,
-            29,
-            36,
-            4,
-            44,
-            12,
-            52,
-            20,
-            60,
-            28,
-            35,
-            3,
-            43,
-            11,
-            51,
-            19,
-            59,
-            27,
-            34,
-            2,
-            42,
-            10,
-            50,
-            18,
-            58,
-            26,
-            33,
-            1,
-            41,
-            9,
-            49,
-            17,
-            57,
-            25,
-        ]
 
         block = block_64bits
 
         # Perform inverse permutation
         plaintext = ""
-        for pos in inverse_initial_permut_table:
+        for pos in self.inverse_init_permutation_table:
             plaintext += block[pos - 1]
 
         # Return plaintext
         return plaintext
+
 
 if __name__ == "__main__":
     permutation = DESPermutation()
