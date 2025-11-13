@@ -1,3 +1,4 @@
+#from des_encryption import DESEncryption, left_circular_shift
 class DESPermutation:
     def __init__(self):  # TODO
         # DES Initial Permutation table
@@ -187,9 +188,55 @@ class DESPermutation:
             57,
             25,
         ]
-
         # TODO Need to add other tables
 
+        self.pc2_permutation_table = [
+        6, 25, 39, 38, 55, 28, 16, 2, 
+        53, 46, 30, 9, 19, 27, 21, 7, 
+        32, 13, 20, 52, 23, 34, 18, 35, 
+        17, 10, 43, 31, 11, 5, 47, 42, 
+        45, 26, 51, 44, 15, 3, 36, 50, 
+        37, 56, 12, 14, 49, 29, 22, 8, 
+        4, 33, 54, 40, 24, 48, 41, 1
+        ]   
+        
+        self.pbox_table = [
+            16, 7, 20, 21, 29, 12,
+            28, 17, 1, 15, 23, 26,
+            5, 18, 31, 10, 2, 8,
+            24, 14, 32, 27, 3, 9,
+            19, 13, 30, 6, 22, 11, 4, 25]
+
+        # Inverse tables for decryption processes: 
+
+        self.inverse_pc2_permutation_table = [
+            56, 8, 38, 49, 30, 1, 16, 48, 
+            12, 26, 29, 43, 18, 44, 37, 7, 
+            25, 23, 13, 19, 15, 47, 21, 53, 
+            2, 34, 14, 6, 46, 11, 28, 17, 
+            50, 22, 24, 39, 41, 4, 3, 52, 
+            55, 32, 27, 36, 33, 10, 31, 54, 
+            45, 40, 35, 20, 9, 51, 5, 42
+            ]
+        
+        self.inverse_pbox_table = [
+            9, 17, 23, 31, 13, 28, 2, 18, 
+            24, 16, 30, 6, 26, 20, 10, 1, 
+            8, 14, 25, 3, 4, 29, 11, 19, 
+            32, 12, 22, 7, 5, 27, 15, 21
+        ]
+
+    def left_circular_shift(self, block_bits):
+        # Apply left circular shift to block_bits
+        length = len(block_bits)
+    
+        # Use modulo to handle shifts larger than the string length
+        shift_amount = 1 % length
+    
+        shifted_string = block_bits[shift_amount:] + block_bits[:shift_amount]
+    
+        return shifted_string
+    
     def initial_permutation(self, block_64bits: str):
         # Permutation of 64-bit block
         # returns 64-bit
@@ -206,7 +253,7 @@ class DESPermutation:
         return permuted
 
     def permuted_choice_1(self, key_64bits: str):
-        # TODO Permutation of 64-bit key
+        # Permutation of 64-bit key
         # returns 56-bit
         # 8 blocks of 7 bits where each block contains originally a parity bit and is removed
         # for 1 block remove index 0 bit
@@ -221,15 +268,50 @@ class DESPermutation:
 
         blocks_7bits = "".join(blocks_7bits)
         return blocks_7bits
+    
+    def pc2_permutation(self, key_56bits: str):
+        # Permutation of the combined 56-bit key from permuted choice 2
+        block = key_56bits
 
+        # Perform permutation
+        permuted = ""
+        for pos in self.pc2_permutation_table:
+            # The permutation table uses 1-based indexing (to match presentation), so subtract 1
+            permuted += block[pos - 1]
+
+        # Returns 56 bits after initial permutation
+        return permuted
+           
     def permuted_choice_2(self, key_56bits: str):
-        # TODO Permutation of 56-bit key
-        # TODO Split key into 2 equal parts (28 bits each)
-        # TODO left circular shift again to each part
-        # TODO Concatenate both parts and apply pemutation
-        # TODO Removes parity bits again
+        # Permutation of 56-bit key
+        # Split key into 2 equal parts (28 bits each)
+        # TODO verify Import for left circular shift again to each part
+        # Concatenate both parts and apply pemutation
+        # Removes parity bits again
         # returns 48-bit (subkey for round i)
-        subkey = ""  # TODO
+
+        left_part = key_56bits[:28]
+        right_part = key_56bits[28:]
+
+
+        left_part_shifted = self.left_circular_shift(left_part)  
+        right_part_shifted = self.left_circular_shift(right_part)  
+
+        combined_key = left_part_shifted + right_part_shifted
+
+        # Apply PC-2 permutation
+        permuted_key = self.pc2_permutation(combined_key)
+        
+        blocks_6bits = []
+        for i in range(8):
+        # Divide into 8 groups of 7 bits
+            start_index = i * 7
+            end_index = (i + 1) * 7
+            block = permuted_key[start_index : end_index]
+            block_without_parity = block[1:] # Remove parity bit (firt of each block)
+            blocks_6bits.append(block_without_parity) 
+
+        subkey = "".join(blocks_6bits)  
         return subkey
 
     def e_table(self, block_32bits: str):
@@ -243,10 +325,17 @@ class DESPermutation:
         return expanded_block
 
     def p_box(self, block_32bits: str):
-        # TODO P-box permutation of 32-bit
-        # returns pbox_32bits
+        # P-box permutation of 32-bit
+        block = block_32bits
 
-        pass
+        # Perform permutation
+        permuted = ""
+        for pos in self.pbox_table:
+            # The permutation table uses 1-based indexing (to match presentation), so subtract 1
+            permuted += block[pos - 1]
+
+        # Returns 32 bits after initial permutation
+        return permuted
 
     def inverse_initial_permutation(self, block_64bits: str):
         # Inverse initial permutation of 64-bit ciphertext using the positions where the original bits where before permutation.
@@ -265,7 +354,10 @@ class DESPermutation:
 
 if __name__ == "__main__":
     permutation = DESPermutation()
-    binary_data = "0100100001100101011011000110110001101111001000010010000100100001"
-    print("Binary data:", binary_data)
-    blocks7bits = permutation.permuted_choice_1(binary_data)
-    print(blocks7bits)
+    binary_data64 = "0100100001100101011011000110110001101111001000010010000100100001"
+    binary_data56 = "01001000011001010110110001101100011011110010000100100001"
+    test_left = permutation.left_circular_shift("10001")
+    print(test_left)
+    print("Binary data:", binary_data56)
+    subkey1 = permutation.permuted_choice_2(binary_data56)
+    print(subkey1)

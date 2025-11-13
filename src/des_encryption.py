@@ -12,10 +12,18 @@ class DESEncryption:
         self.parser = DESParser()
         self.subkeys = self._generate_subkeys()  # TODO 48 bits each subkey
 
-    def left_circular_shift(self, block_56bits):
-        # TODO Apply left circular shift to block_56bits
-        # returns shifted_56bits
-        pass
+    # Changed input to hanlde any bit length
+    def left_circular_shift(self, block_bits):
+        # Apply left circular shift to block_bits
+        length = len(block_bits)
+    
+        # Use modulo to handle shifts larger than the string length
+        shift_amount = 1 % length
+    
+        shifted_string = block_bits[shift_amount:] + block_bits[:shift_amount]
+    
+        return shifted_string
+
 
     def _generate_subkeys(self):
         # TODO Generate all rounds subkeys
