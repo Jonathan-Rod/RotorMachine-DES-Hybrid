@@ -4,44 +4,60 @@ from des_parser import DESParser
 
 
 class DESEncryption:
-    def __init__(self, rounds=16):
-        # self.key = key
+    def __init__(self, key: str, rounds: int = 16):
+        self.key_64bits = key
         self.rounds = rounds
-        self.permutation = DESPermutation()  # TODO
-        self.bit_converter = DESBitConverter()  # TODO
+        self.permutation = DESPermutation()
+        self.bit_converter = DESBitConverter()
         self.parser = DESParser()
-        self.subkeys = self._generate_subkeys()  # TODO 48 bits each subkey
+        self.subkeys = self._generate_subkeys()
 
     # Changed input to hanlde any bit length
     def left_circular_shift(self, block_bits):
         # Apply left circular shift to block_bits
         length = len(block_bits)
-    
+
         # Use modulo to handle shifts larger than the string length
         shift_amount = 1 % length
-    
+
         shifted_string = block_bits[shift_amount:] + block_bits[:shift_amount]
-    
+
         return shifted_string
 
-
-    def _generate_subkeys(self):
+    def _generate_subkeys(self) -> list[str]:
         # TODO #5 Implement Subkey Generation
-        # TODO Generate all rounds subkeys
-        # TODO key 64-bits
-        key_64bits = ""  # TODO
-        # TODO permutation.permuted_choice_1
+        """Generate 16 subkeys of 48 bits each from the given key.
+
+        Raises:
+            ValueError: If the key size is not 64 bits.
+
+        Returns:
+            list[str]: A list of 16 subkeys of 48 bits each.
+        """
+        key_64bits = self.key_64bits
+        if len(key_64bits) != 64:
+            raise ValueError(
+                f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
+            )
+
+        # 1. TODO Apply Permuted_choice_1
         key_56bits = self.permutation.permuted_choice_1(key_64bits)
-        # TODO inside a for loop self.rounds
+
+        # 2. Split into left and right 28 bits
+        C = key_56bits[:28]
+        D = key_56bits[28:]
+
+        # 3. TODO Generate 16 subkeys of 48 bits each
         subkeys = []
         for i in range(self.rounds):
-            # TODO left_circular_shift
-            if i == 0:
-                shifted_key_56bits = self.left_circular_shift(key_56bits)
-            else:
-                shifted_key_56bits = self.left_circular_shift(shifted_key_56bits)
+            # 4. TODO Left circular shift both halves
+            C = self.left_circular_shift(C)
+            D = self.left_circular_shift(D)
 
-            # TODO permutation.permuted_choice_2
+            # 5. Combine halves back into 56 bits
+            shifted_key_56bits = C + D
+
+            # 6. TODO Apply permuted_choice_2
             subkey = self.permutation.permuted_choice_2(shifted_key_56bits)
             subkeys.append(subkey)
 

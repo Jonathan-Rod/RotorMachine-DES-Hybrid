@@ -1,4 +1,4 @@
-#from des_encryption import DESEncryption, left_circular_shift
+# from des_encryption import DESEncryption, left_circular_shift
 class DESPermutation:
     def __init__(self):  # TODO
         # DES Initial Permutation table
@@ -294,7 +294,6 @@ class DESPermutation:
         left_part = key_56bits[:28]
         right_part = key_56bits[28:]
 
-
         left_part_shifted = self.left_circular_shift(left_part)
         right_part_shifted = self.left_circular_shift(right_part)
 
@@ -305,7 +304,7 @@ class DESPermutation:
 
         blocks_6bits = []
         for i in range(8):
-        # Divide into 8 groups of 7 bits
+            # Divide into 8 groups of 7 bits
             start_index = i * 7
             end_index = (i + 1) * 7
             block = permuted_key[start_index : end_index]
@@ -334,7 +333,7 @@ class DESPermutation:
         permuted = ""
         for pos in self.pbox_table:
             # The permutation table uses 1-based indexing (to match presentation), so subtract 1
-            permuted += block[pos - 1]
+            permuted += block_32bits[pos - 1]
 
         # Returns 32 bits after initial permutation
         return permuted
