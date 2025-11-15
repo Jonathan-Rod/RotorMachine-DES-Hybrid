@@ -223,6 +223,7 @@ class DESPermutation:
         return blocks_7bits
 
     def permuted_choice_2(self, key_56bits: str):
+        # TODO #6 Implement Permuted Choice 2
         # TODO Permutation of 56-bit key
         # TODO Split key into 2 equal parts (28 bits each)
         # TODO left circular shift again to each part
@@ -243,7 +244,8 @@ class DESPermutation:
         return expanded_block
 
     def p_box(self, block_32bits: str):
-        # TODO P-box permutation of 32-bit
+        # TODO #7 Implement P-box
+        # TODO permutation of 32-bit
         # returns pbox_32bits
 
         pass

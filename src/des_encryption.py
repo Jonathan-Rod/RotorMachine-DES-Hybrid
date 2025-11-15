@@ -18,6 +18,7 @@ class DESEncryption:
         pass
 
     def _generate_subkeys(self):
+        # TODO #5 Implement Subkey Generation
         # TODO Generate all rounds subkeys
         # TODO key 64-bits
         key_64bits = ""  # TODO
@@ -60,7 +61,7 @@ class DESEncryption:
         return xor_bits
 
     def _sbox(self, block_48bits: str) -> str:  # TODO
-        """Applies S-box substitution to the given 48-bit block.
+        """TODO #4 Applies S-box substitution to the given 48-bit block.
 
         Args:
             block_48bits (str): The 48-bit block to apply S-box substitution to.
@@ -168,12 +169,12 @@ class DESEncryption:
         return ciphertext
 
     def decrypt_block(self, block_64bits):
-        # TODO Decryption logic 64 bits
+        # TODO #3 Implement Decryption block logic
         # Same process as encryption but in reverse ordder of subkeys
         pass
 
     def decrypt(self, ciphertext):
-        # TODO Decryption logic
+        # TODO #2 Implement Decryption logic
         # TODO divides ciphertext into blocks
         # TODO decrypts each block
         # TODO removes padding
