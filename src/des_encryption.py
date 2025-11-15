@@ -4,15 +4,22 @@ from des_parser import DESParser
 
 
 class DESEncryption:
-    def __init__(self, key: str, rounds: int = 16):
-        self.key_64bits = key
+    def __init__(self, rounds: int = 16):
+        self.key_64bits = self._generate_key()  # TODO Implement key generation
         self.rounds = rounds
         self.permutation = DESPermutation()
         self.bit_converter = DESBitConverter()
         self.parser = DESParser()
         self.subkeys = self._generate_subkeys()
 
-    # Changed input to hanlde any bit length
+        self.sbox_tables: list[list[list[int]]] = (
+            ""  # TODO Define 8 S-box tables in DESPermutation class
+        )
+
+    def _generate_key(self) -> str:
+        # TODO Implement Key Generation
+        pass
+
     def left_circular_shift(self, block_bits):
         # Apply left circular shift to block_bits
         length = len(block_bits)
@@ -34,7 +41,7 @@ class DESEncryption:
         Returns:
             list[str]: A list of 16 subkeys of 48 bits each.
         """
-        key_64bits = self.key_64bits
+        key_64bits = self.key_64bits  # TODO Ensure key
         if len(key_64bits) != 64:
             raise ValueError(
                 f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
@@ -93,7 +100,7 @@ class DESEncryption:
         Returns:
             str: The 32-bit result of the S-box substitution.
         """
-        sbox_tables: list[list[list[int]]] = "" # TODO Define 8 S-box tables in DESPermutation class
+
         result_32bits = ""
         # 1. TODO Divide block_48bits into 8 blocks of 6 bits each
         for i in range(8):
@@ -107,7 +114,7 @@ class DESEncryption:
             col = int(col_bits, 2)  # Convert to decimal
 
             # 3. TODO Apply S-box lookup
-            sbox_item = sbox_tables[i][row][col] # TODO Get S-box value
+            sbox_item = self.sbox_tables[i][row][col]  # TODO Get S-box value
             sbox_output_bits = format(sbox_item, "04b")  # Convert to 4-bit binary
 
             # 4. Combine results into 32-bit block
@@ -144,6 +151,9 @@ class DESEncryption:
 
         # 6. Return the right_32bits as new_left_32bits and new_right_32bits
         new_left_32bits = right_32bits
+
+        # 7. Swap and prepare for next round.
+        # We assume that the new_right_32bits is the output calculated in step 6 and new_left_32bits is the previous right_32bits
 
         return new_left_32bits, new_right_32bits
 

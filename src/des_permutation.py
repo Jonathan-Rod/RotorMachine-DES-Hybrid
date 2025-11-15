@@ -1,4 +1,4 @@
-# from des_encryption import DESEncryption, left_circular_shift
+
 class DESPermutation:
     def __init__(self):  # TODO
         # DES Initial Permutation table
@@ -188,7 +188,6 @@ class DESPermutation:
             57,
             25,
         ]
-        # TODO Need to add other tables
 
         self.pc2_permutation_table = [
         6, 25, 39, 38, 55, 28, 16, 2,
@@ -226,17 +225,6 @@ class DESPermutation:
             32, 12, 22, 7, 5, 27, 15, 21
         ]
 
-    def left_circular_shift(self, block_bits):
-        # Apply left circular shift to block_bits
-        length = len(block_bits)
-
-        # Use modulo to handle shifts larger than the string length
-        shift_amount = 1 % length
-
-        shifted_string = block_bits[shift_amount:] + block_bits[:shift_amount]
-
-        return shifted_string
-
     def initial_permutation(self, block_64bits: str):
         # Permutation of 64-bit block
         # returns 64-bit
@@ -253,12 +241,14 @@ class DESPermutation:
         return permuted
 
     def permuted_choice_1(self, key_64bits: str):
-        # Permutation of 64-bit key
-        # returns 56-bit
-        # 8 blocks of 7 bits where each block contains originally a parity bit and is removed
-        # for 1 block remove index 0 bit
-        # for 2 block remove index 1 bit
-        # and so on until index 6
+        """Permutation of 64-bit key to remove parity bits and return 56-bit key.
+
+        Args:
+            key_64bits (str): The 64-bit key to be permuted.
+
+        Returns:
+            str: The 56-bit key after removing parity bits.
+        """
 
         blocks_7bits = []
         for i in range(8):  # TODO Can be a external function in parser class
@@ -283,24 +273,24 @@ class DESPermutation:
         return permuted
 
     def permuted_choice_2(self, key_56bits: str):
+        """Permutes the 56-bit key and concatenates both parts and applies permutation again.
+        Removes parity bits and returns 48-bit subkey for round i.
+
+        Args:
+            key_56bits (str): The 56-bit key to be permuted.
+
+        Returns:
+            str: The 48-bit subkey for round i.
+        """
         # TODO #6 Implement Permuted Choice 2
+
         # TODO Permutation of 56-bit key
-        # TODO Split key into 2 equal parts (28 bits each)
-        # TODO left circular shift again to each part
         # TODO Concatenate both parts and apply pemutation
         # TODO Removes parity bits again
         # returns 48-bit (subkey for round i)
 
-        left_part = key_56bits[:28]
-        right_part = key_56bits[28:]
-
-        left_part_shifted = self.left_circular_shift(left_part)
-        right_part_shifted = self.left_circular_shift(right_part)
-
-        combined_key = left_part_shifted + right_part_shifted
-
         # Apply PC-2 permutation
-        permuted_key = self.pc2_permutation(combined_key)
+        permuted_key = self.pc2_permutation(key_56bits)
 
         blocks_6bits = []
         for i in range(8):
@@ -315,9 +305,14 @@ class DESPermutation:
         return subkey
 
     def e_table(self, block_32bits: str):
-        # Expansion of 32-bit
-        # returns 48-bit
+        """Expansion of 32-bit block to 48-bit block according to the DES expansion table.
 
+        Args:
+            block_32bits (str): 32-bit block to be expanded.
+
+        Returns:
+            str: 48-bit expanded block.
+        """
         expanded_block = ""
         for pos in self.expansion_table:
             expanded_block += block_32bits[pos - 1]
@@ -325,6 +320,14 @@ class DESPermutation:
         return expanded_block
 
     def p_box(self, block_32bits: str):
+        """Permutation of 32-bit block according to the DES P-box table.
+
+        Args:
+            block_32bits (str): 32-bit block to be permuted.
+
+        Returns:
+            str: 32-bit permuted block.
+        """
         # TODO #7 Implement P-box
         # TODO permutation of 32-bit
         # returns pbox_32bits
