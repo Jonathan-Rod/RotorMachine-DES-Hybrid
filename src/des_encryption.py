@@ -93,7 +93,27 @@ class DESEncryption:
         Returns:
             str: The 32-bit result of the S-box substitution.
         """
-        return "0" * 32  # TODO
+        sbox_tables: list[list[list[int]]] = "" # TODO Define 8 S-box tables in DESPermutation class
+        result_32bits = ""
+        # 1. TODO Divide block_48bits into 8 blocks of 6 bits each
+        for i in range(8):
+            block_6bits = block_48bits[i * 6 : (i + 1) * 6]
+
+            # 2. TODO Determine row and column for S-box lookup
+            row_bits = block_6bits[0] + block_6bits[5]
+            col_bits = block_6bits[1:5]
+
+            row = int(row_bits, 2)  # Convert to decimal
+            col = int(col_bits, 2)  # Convert to decimal
+
+            # 3. TODO Apply S-box lookup
+            sbox_item = sbox_tables[i][row][col] # TODO Get S-box value
+            sbox_output_bits = format(sbox_item, "04b")  # Convert to 4-bit binary
+
+            # 4. Combine results into 32-bit block
+            result_32bits += sbox_output_bits
+
+        return result_32bits
 
     def round(self, left_32bits, right_32bits, subkey_48bits):
         """Applies a single round of DES encryption to the given 32-bit blocks.
