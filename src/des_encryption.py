@@ -5,12 +5,21 @@ from random import getrandbits
 
 
 class DESEncryption:
-    def __init__(self, rounds: int = 16):
+    def __init__(self, key_64bits: str = None, rounds: int = 16):
         self.rounds = rounds
         self.permutation = DESPermutation()
         self.bit_converter = DESBitConverter()
         self.parser = DESParser()
-        self.key_64bits = self._generate_key()  # TODO Implement key generation
+
+        if key_64bits:
+            if len(key_64bits) != 64:
+                raise ValueError(
+                    f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
+                )
+            self.key_64bits = key_64bits
+        else:
+            self.key_64bits = self._generate_key()
+
         self.subkeys = self._generate_subkeys()
 
         self.sbox_tables: list[list[list[int]]] = (
@@ -49,6 +58,8 @@ class DESEncryption:
             list[str]: A list of 16 subkeys of 48 bits each.
         """
         key_64bits = self.key_64bits  # TODO Ensure key
+        print(f"DEBUG:Generating subkeys from key: {key_64bits}")
+
         if len(key_64bits) != 64:
             raise ValueError(
                 f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
@@ -56,6 +67,7 @@ class DESEncryption:
 
         # 1. TODO Apply Permuted_choice_1
         key_56bits = self.permutation.permuted_choice_1(key_64bits)
+        print(f"DEBUG:Key after PC-1: {key_56bits}")
         if len(key_56bits) != 56:
             raise ValueError(
                 f"Key size mismatch after PC-1: expected 56 bits, got {len(key_56bits)} bits."
@@ -63,6 +75,9 @@ class DESEncryption:
         # 2. Split into left and right 28 bits
         C = key_56bits[:28]
         D = key_56bits[28:]
+
+        print(f"DEBUG:Left half C0: {C}")
+        print(f"DEBUG:Right half D0: {D}")
 
         # 3. TODO Generate 16 subkeys of 48 bits each
         subkeys_48bits = []
@@ -81,6 +96,12 @@ class DESEncryption:
                     f"Subkey size mismatch after PC-2: expected 48 bits, got {len(subkey_48bits)} bits."
                 )
             subkeys_48bits.append(subkey_48bits)
+
+            if i == 0:
+                print(f"DEBUG:Subkey_{i+1} after PC-2: {subkey_48bits}")
+                print(f"DEBUG:C1: {C}")
+                print(f"DEBUG:D1: {D}")
+                print(f"DEBUG:Shifted key after left shift: {shifted_key_56bits}")
 
         return subkeys_48bits
 
@@ -252,8 +273,9 @@ class DESEncryption:
 
 
 if __name__ == "__main__":
-    des = DESEncryption()
-    des.key_64bits = "1011001110010110010110011101010001001111111011011110001101111011"
+    des = DESEncryption(
+        "1011001110010110010110011101010001001111111011011110001101111011"
+    )
+    print(f"Key (64 bits): {des.key_64bits}")
     des._generate_subkeys()
-    print(
-        des.subkeys)
+    [print(f"Subkeys: {des.subkeys[i]}") for i in range(des.rounds)]
