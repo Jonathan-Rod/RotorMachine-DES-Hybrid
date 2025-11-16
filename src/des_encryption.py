@@ -5,12 +5,21 @@ from random import getrandbits
 
 
 class DESEncryption:
-    def __init__(self, rounds: int = 16):
+    def __init__(self, key_64bits: str = None, rounds: int = 16):
         self.rounds = rounds
         self.permutation = DESPermutation()
         self.bit_converter = DESBitConverter()
         self.parser = DESParser()
-        self.key_64bits = self._generate_key()  # TODO Implement key generation
+
+        if key_64bits:
+            if len(key_64bits) != 64:
+                raise ValueError(
+                    f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
+                )
+            self.key_64bits = key_64bits
+        else:
+            self.key_64bits = self._generate_key()
+
         self.subkeys = self._generate_subkeys()
 
         self.sbox_tables: list[list[list[int]]] = (
@@ -39,7 +48,6 @@ class DESEncryption:
         return shifted_string
 
     def _generate_subkeys(self) -> list[str]:
-        # TODO #5 Implement Subkey Generation
         """Generate 16 subkeys of 48 bits each from the given key.
 
         Raises:
@@ -48,7 +56,7 @@ class DESEncryption:
         Returns:
             list[str]: A list of 16 subkeys of 48 bits each.
         """
-        key_64bits = self.key_64bits  # TODO Ensure key
+        key_64bits = self.key_64bits
         if len(key_64bits) != 64:
             raise ValueError(
                 f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
@@ -252,8 +260,9 @@ class DESEncryption:
 
 
 if __name__ == "__main__":
-    des = DESEncryption()
-    des.key_64bits = "1011001110010110010110011101010001001111111011011110001101111011"
+    des = DESEncryption(
+        "1011001110010110010110011101010001001111111011011110001101111011"
+    )
+    print(f"Key (64 bits): {des.key_64bits}")
     des._generate_subkeys()
-    print(
-        des.subkeys)
+    [print(f"Subkeys: {des.subkeys[i]}") for i in range(des.rounds)]
