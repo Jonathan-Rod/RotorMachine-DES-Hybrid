@@ -282,101 +282,7 @@ class DESPermutation:
             25,
         ]
 
-        # Inverse tables for decryption processes:
 
-        self.inverse_pc2_permutation_table = [
-            56,
-            8,
-            38,
-            49,
-            30,
-            1,
-            16,
-            48,
-            12,
-            26,
-            29,
-            43,
-            18,
-            44,
-            37,
-            7,
-            25,
-            23,
-            13,
-            19,
-            15,
-            47,
-            21,
-            53,
-            2,
-            34,
-            14,
-            6,
-            46,
-            11,
-            28,
-            17,
-            50,
-            22,
-            24,
-            39,
-            41,
-            4,
-            3,
-            52,
-            55,
-            32,
-            27,
-            36,
-            33,
-            10,
-            31,
-            54,
-            45,
-            40,
-            35,
-            20,
-            9,
-            51,
-            5,
-            42,
-        ]
-
-        self.inverse_pbox_table = [
-            9,
-            17,
-            23,
-            31,
-            13,
-            28,
-            2,
-            18,
-            24,
-            16,
-            30,
-            6,
-            26,
-            20,
-            10,
-            1,
-            8,
-            14,
-            25,
-            3,
-            4,
-            29,
-            11,
-            19,
-            32,
-            12,
-            22,
-            7,
-            5,
-            27,
-            15,
-            21,
-        ]
 
     def initial_permutation(self, block_64bits: str):
         # Permutation of 64-bit block
@@ -408,25 +314,13 @@ class DESPermutation:
             )
         blocks_7bits = []
         for i in range(8):
-            block = key_64bits[i * 8 : (i + 1) * 8]  # Bloque de 8 bits
-            block_without_parity = block[:i] + block[i + 1 :]  # Remove parity bit
-            blocks_7bits.append(block_without_parity)
+            block_8bits = key_64bits[i * 8 : (i + 1) * 8]  # Bloque de 8 bits
+            # Assuming parity bit convention is the first bit of each block
+            block_7bits = block_8bits[1:]  # Remove parity bit
+            blocks_7bits.append(block_7bits)
 
         block_56bits = "".join(blocks_7bits)
         return block_56bits
-
-    def pc2_permutation(self, key_56bits: str):
-        # Permutation of the combined 56-bit key from permuted choice 2
-        block = key_56bits
-
-        # Perform permutation
-        permuted = ""
-        for pos in self.pc2_permutation_table:
-            # The permutation table uses 1-based indexing (to match presentation), so subtract 1
-            permuted += block[pos - 1]
-
-        # Returns 56 bits after initial permutation
-        return permuted
 
     def permuted_choice_2(self, key_56bits: str):
         """Permutes the 56-bit key and concatenates both parts and applies permutation again.
@@ -438,24 +332,28 @@ class DESPermutation:
         Returns:
             str: The 48-bit subkey for round i.
         """
-        # TODO #6 Implement Permuted Choice 2
 
-        # TODO Permutation of 56-bit key
-        # TODO Concatenate both parts and apply pemutation
-        # TODO Removes parity bits again
         # returns 48-bit (subkey for round i)
 
-        # Apply PC-2 permutation
-        permuted_key = self.pc2_permutation(key_56bits)
+        if len(key_56bits) != 56:
+            raise ValueError(
+                f"Key size mismatch: expected 56 bits, got {len(key_56bits)} bits."
+            )
 
+        # 1. Permutation of 56-bit key
+        permuted_block_56bits = ""
+        for position in self.pc2_permutation_table:
+            # The permutation table uses 1-based indexing (to match presentation), so subtract 1
+            permuted_block_56bits += key_56bits[position - 1]
+
+        # 2. Removes parity bits again
         blocks_6bits = []
         for i in range(8):
             # Divide into 8 groups of 7 bits
-            start_index = i * 7
-            end_index = (i + 1) * 7
-            block = permuted_key[start_index:end_index]
-            block_without_parity = block[1:]  # Remove parity bit (firt of each block)
-            blocks_6bits.append(block_without_parity)
+            block_7bits = permuted_block_56bits[i * 7:(i + 1) * 7]
+            # 3. Assuming parity bit convention: Remove parity bit (first bit of each block)
+            block_6bits = block_7bits[1:]  # Remove parity bit (firt of each block)
+            blocks_6bits.append(block_6bits)
 
         subkey = "".join(blocks_6bits)
         return subkey
@@ -484,8 +382,6 @@ class DESPermutation:
         Returns:
             str: 32-bit permuted block.
         """
-        # TODO #7 Implement P-box
-        # TODO permutation of 32-bit
         # returns pbox_32bits
 
         # Perform permutation
