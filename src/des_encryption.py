@@ -64,6 +64,7 @@ class DESEncryption:
 
         # 1. TODO Apply Permuted_choice_1
         key_56bits = self.permutation.permuted_choice_1(key_64bits)
+        print(f"DEBUG:Key after PC-1: {key_56bits}")
         if len(key_56bits) != 56:
             raise ValueError(
                 f"Key size mismatch after PC-1: expected 56 bits, got {len(key_56bits)} bits."
@@ -71,6 +72,9 @@ class DESEncryption:
         # 2. Split into left and right 28 bits
         C = key_56bits[:28]
         D = key_56bits[28:]
+
+        print(f"DEBUG:Left half C0: {C}")
+        print(f"DEBUG:Right half D0: {D}")
 
         # 3. TODO Generate 16 subkeys of 48 bits each
         subkeys_48bits = []
@@ -89,6 +93,12 @@ class DESEncryption:
                     f"Subkey size mismatch after PC-2: expected 48 bits, got {len(subkey_48bits)} bits."
                 )
             subkeys_48bits.append(subkey_48bits)
+
+            if i == 0:
+                print(f"DEBUG:Subkey_{i+1} after PC-2: {subkey_48bits}")
+                print(f"DEBUG:C1: {C}")
+                print(f"DEBUG:D1: {D}")
+                print(f"DEBUG:Shifted key after left shift: {shifted_key_56bits}")
 
         return subkeys_48bits
 
