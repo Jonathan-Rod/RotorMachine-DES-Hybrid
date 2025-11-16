@@ -1,5 +1,11 @@
 class RotorMachine:
-    def __init__(self, rotor1: list[str], rotor2: list[str], rotor3: list[str]):
+
+    def __init__(
+        self,
+        rotor1: list[str] = list("UCOASJNZTHPGVDKEQILWRBYFXM"),
+        rotor2: list[str] = list("ZABCDEFGHIJKLMNOPQRSTUVWXY"),
+        rotor3: list[str] = list("TAFDOCNLWEPBVSKRYXMGJHUIZQ"),
+    ):
         self.rotor1_original = rotor1
         self.rotor2_original = rotor2
         self.rotor3_original = rotor3
@@ -34,16 +40,16 @@ class RotorMachine:
             self.rotor3 = self.rotor3[1:] + [self.rotor3[0]]
             self.rotor3_pos = (self.rotor3_pos + 1) % self.rotor_length
 
-    def encrypt_char(self, char1):
+    def encrypt_char(self, char1): # O(N)
         if char1 not in self.rotor1:
             return char1
 
         # Here is the ecryption logic
-        char2 = self.rotor2[self.rotor1.index(char1)]
-        char3 = self.rotor3[self.rotor2.index(char2)]
+        char2 = self.rotor2[self.rotor1.index(char1)] # O(1)
+        char3 = self.rotor3[self.rotor2.index(char2)] # O(1)
 
         # Apply rotation after each character
-        self.rotate_rotors()
+        self.rotate_rotors() # O(N)
 
         return char3
 
@@ -73,3 +79,4 @@ class RotorMachine:
         for char in text.upper():
             decrypted_text += self.decrypt_char(char)
         return decrypted_text
+

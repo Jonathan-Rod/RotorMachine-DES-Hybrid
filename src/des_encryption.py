@@ -360,3 +360,4 @@ if __name__ == "__main__":
     print(f"Ciphertext: {ciphertext}")
     decrypted_text = des.decrypt(ciphertext)
     print(f"Decrypted text: {decrypted_text}")
+
