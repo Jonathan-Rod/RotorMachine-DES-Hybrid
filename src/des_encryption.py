@@ -1,15 +1,16 @@
 from des_permutation import DESPermutation
 from des_bit_converter import DESBitConverter
 from des_parser import DESParser
+from random import getrandbits
 
 
 class DESEncryption:
     def __init__(self, rounds: int = 16):
-        self.key_64bits = self._generate_key()  # TODO Implement key generation
         self.rounds = rounds
         self.permutation = DESPermutation()
         self.bit_converter = DESBitConverter()
         self.parser = DESParser()
+        self.key_64bits = self._generate_key()  # TODO Implement key generation
         self.subkeys = self._generate_subkeys()
 
         self.sbox_tables: list[list[list[int]]] = (
@@ -17,8 +18,14 @@ class DESEncryption:
         )
 
     def _generate_key(self) -> str:
-        # TODO Implement Key Generation
-        pass
+        """
+        Generates a 64-bit random key for DES encryption.
+
+        Returns:
+            str: A 64-bit key in binary format.
+        """
+        generated_key_64bits = format(getrandbits(64), "064b")
+        return generated_key_64bits
 
     def left_circular_shift(self, block_bits):
         # Apply left circular shift to block_bits
@@ -49,13 +56,16 @@ class DESEncryption:
 
         # 1. TODO Apply Permuted_choice_1
         key_56bits = self.permutation.permuted_choice_1(key_64bits)
-
+        if len(key_56bits) != 56:
+            raise ValueError(
+                f"Key size mismatch after PC-1: expected 56 bits, got {len(key_56bits)} bits."
+            )
         # 2. Split into left and right 28 bits
         C = key_56bits[:28]
         D = key_56bits[28:]
 
         # 3. TODO Generate 16 subkeys of 48 bits each
-        subkeys = []
+        subkeys_48bits = []
         for i in range(self.rounds):
             # 4. TODO Left circular shift both halves
             C = self.left_circular_shift(C)
@@ -65,10 +75,14 @@ class DESEncryption:
             shifted_key_56bits = C + D
 
             # 6. TODO Apply permuted_choice_2
-            subkey = self.permutation.permuted_choice_2(shifted_key_56bits)
-            subkeys.append(subkey)
+            subkey_48bits = self.permutation.permuted_choice_2(shifted_key_56bits)
+            if len(subkey_48bits) != 48:
+                raise ValueError(
+                    f"Subkey size mismatch after PC-2: expected 48 bits, got {len(subkey_48bits)} bits."
+                )
+            subkeys_48bits.append(subkey_48bits)
 
-        return subkeys
+        return subkeys_48bits
 
     def _xor(self, x_bits: str, y_bits: str) -> str:
         """Performs a bitwise XOR operation on two bit strings of equal length.
@@ -235,3 +249,11 @@ class DESEncryption:
         # TODO joins decrypted blocks
         # TODO returns plaintext
         pass
+
+
+if __name__ == "__main__":
+    des = DESEncryption()
+    des.key_64bits = "1011001110010110010110011101010001001111111011011110001101111011"
+    des._generate_subkeys()
+    print(
+        des.subkeys)

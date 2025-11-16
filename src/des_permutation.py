@@ -1,4 +1,3 @@
-
 class DESPermutation:
     def __init__(self):  # TODO
         # DES Initial Permutation table
@@ -190,39 +189,193 @@ class DESPermutation:
         ]
 
         self.pc2_permutation_table = [
-        6, 25, 39, 38, 55, 28, 16, 2,
-        53, 46, 30, 9, 19, 27, 21, 7,
-        32, 13, 20, 52, 23, 34, 18, 35,
-        17, 10, 43, 31, 11, 5, 47, 42,
-        45, 26, 51, 44, 15, 3, 36, 50,
-        37, 56, 12, 14, 49, 29, 22, 8,
-        4, 33, 54, 40, 24, 48, 41, 1
+            6,
+            25,
+            39,
+            38,
+            55,
+            28,
+            16,
+            2,
+            53,
+            46,
+            30,
+            9,
+            19,
+            27,
+            21,
+            7,
+            32,
+            13,
+            20,
+            52,
+            23,
+            34,
+            18,
+            35,
+            17,
+            10,
+            43,
+            31,
+            11,
+            5,
+            47,
+            42,
+            45,
+            26,
+            51,
+            44,
+            15,
+            3,
+            36,
+            50,
+            37,
+            56,
+            12,
+            14,
+            49,
+            29,
+            22,
+            8,
+            4,
+            33,
+            54,
+            40,
+            24,
+            48,
+            41,
+            1,
         ]
 
         self.pbox_table = [
-            16, 7, 20, 21, 29, 12,
-            28, 17, 1, 15, 23, 26,
-            5, 18, 31, 10, 2, 8,
-            24, 14, 32, 27, 3, 9,
-            19, 13, 30, 6, 22, 11, 4, 25]
+            16,
+            7,
+            20,
+            21,
+            29,
+            12,
+            28,
+            17,
+            1,
+            15,
+            23,
+            26,
+            5,
+            18,
+            31,
+            10,
+            2,
+            8,
+            24,
+            14,
+            32,
+            27,
+            3,
+            9,
+            19,
+            13,
+            30,
+            6,
+            22,
+            11,
+            4,
+            25,
+        ]
 
         # Inverse tables for decryption processes:
 
         self.inverse_pc2_permutation_table = [
-            56, 8, 38, 49, 30, 1, 16, 48,
-            12, 26, 29, 43, 18, 44, 37, 7,
-            25, 23, 13, 19, 15, 47, 21, 53,
-            2, 34, 14, 6, 46, 11, 28, 17,
-            50, 22, 24, 39, 41, 4, 3, 52,
-            55, 32, 27, 36, 33, 10, 31, 54,
-            45, 40, 35, 20, 9, 51, 5, 42
-            ]
+            56,
+            8,
+            38,
+            49,
+            30,
+            1,
+            16,
+            48,
+            12,
+            26,
+            29,
+            43,
+            18,
+            44,
+            37,
+            7,
+            25,
+            23,
+            13,
+            19,
+            15,
+            47,
+            21,
+            53,
+            2,
+            34,
+            14,
+            6,
+            46,
+            11,
+            28,
+            17,
+            50,
+            22,
+            24,
+            39,
+            41,
+            4,
+            3,
+            52,
+            55,
+            32,
+            27,
+            36,
+            33,
+            10,
+            31,
+            54,
+            45,
+            40,
+            35,
+            20,
+            9,
+            51,
+            5,
+            42,
+        ]
 
         self.inverse_pbox_table = [
-            9, 17, 23, 31, 13, 28, 2, 18,
-            24, 16, 30, 6, 26, 20, 10, 1,
-            8, 14, 25, 3, 4, 29, 11, 19,
-            32, 12, 22, 7, 5, 27, 15, 21
+            9,
+            17,
+            23,
+            31,
+            13,
+            28,
+            2,
+            18,
+            24,
+            16,
+            30,
+            6,
+            26,
+            20,
+            10,
+            1,
+            8,
+            14,
+            25,
+            3,
+            4,
+            29,
+            11,
+            19,
+            32,
+            12,
+            22,
+            7,
+            5,
+            27,
+            15,
+            21,
         ]
 
     def initial_permutation(self, block_64bits: str):
@@ -249,15 +402,18 @@ class DESPermutation:
         Returns:
             str: The 56-bit key after removing parity bits.
         """
-
+        if len(key_64bits) != 64:
+            raise ValueError(
+                f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
+            )
         blocks_7bits = []
-        for i in range(8):  # TODO Can be a external function in parser class
+        for i in range(8):
             block = key_64bits[i * 8 : (i + 1) * 8]  # Bloque de 8 bits
             block_without_parity = block[:i] + block[i + 1 :]  # Remove parity bit
             blocks_7bits.append(block_without_parity)
 
-        blocks_7bits = "".join(blocks_7bits)
-        return blocks_7bits
+        block_56bits = "".join(blocks_7bits)
+        return block_56bits
 
     def pc2_permutation(self, key_56bits: str):
         # Permutation of the combined 56-bit key from permuted choice 2
@@ -297,8 +453,8 @@ class DESPermutation:
             # Divide into 8 groups of 7 bits
             start_index = i * 7
             end_index = (i + 1) * 7
-            block = permuted_key[start_index : end_index]
-            block_without_parity = block[1:] # Remove parity bit (firt of each block)
+            block = permuted_key[start_index:end_index]
+            block_without_parity = block[1:]  # Remove parity bit (firt of each block)
             blocks_6bits.append(block_without_parity)
 
         subkey = "".join(blocks_6bits)
