@@ -1,14 +1,12 @@
+from des_generator import DesGenerator
 from des_permutation import DESPermutation
 from des_bit_converter import DESBitConverter
 from des_parser import DESParser
-from random import getrandbits
-
 
 class DESEncryption:
-    """
-    Implements the Data Encryption Standard (DES) algorithm in Electronic Codebook (ECB) mode.
+    """Implements the Data Encryption Standard (DES) algorithm in Electronic Codebook (ECB) mode.
 
-    The class handles key generation, subkey creation, S-box substitution, 
+    The class handles key generation, subkey creation, S-box substitution,
     P-box permutation, and the full Feistel network for 64-bit block encryption and decryption.
 
     Attributes:
@@ -16,24 +14,26 @@ class DESEncryption:
         permutation (DESPermutation): Helper object for various permutations (IP, EP, PC-1, PC-2, P-box).
         bit_converter (DESBitConverter): Helper object for string-to-binary and binary-to-string conversions.
         parser (DESParser): Helper object for 64-bit block parsing and padding/deparsing.
+        generator (DesGenerator): Helper object for generating random alphabets and permutations.
         key_64bits (str): The 64-bit encryption key in binary format.
         subkeys (list[str]): A list containing the 16 48-bit subkeys used for the rounds.
-        sbox_tables (list[list[list[int]]]): The 8 S-box substitution tables.
-    
+        sbox_tables (list[list[int]]): A list of 8 S-box tables (each containing 64 4-bit integers).
+
     Args:
-        key_64bits (str, optional): A user-provided 64-bit key string in binary format. 
+        key_64bits (str, optional): A user-provided 64-bit key string in binary format.
                                     If None, a random 64-bit key is generated. Defaults to None.
         rounds (int, optional): The number of DES rounds to perform. Defaults to 16.
-    
+
     Raises:
         ValueError: If a provided key_64bits is not exactly 64 bits long.
     """
+
     def __init__(self, key_64bits: str = None, rounds: int = 16):
         self.rounds = rounds
         self.permutation = DESPermutation()
         self.bit_converter = DESBitConverter()
         self.parser = DESParser()
-
+        self.generator = DesGenerator()
         if key_64bits:
             if len(key_64bits) != 64:
                 raise ValueError(
@@ -44,82 +44,40 @@ class DESEncryption:
             self.key_64bits = self._generate_key()
 
         self.subkeys = self._generate_subkeys()
+        self.sbox_tables = self._generate_sbox_tables()
 
-        #TODO Change tables to list. 
-        self.sbox_tables: list[list[list[int]]] = [
-            # S1
-            [
-                [14, 4, 13, 1, 2, 15, 11, 8, 3, 10, 6, 12, 5, 9, 0, 7],
-                [0, 15, 7, 4, 14, 2, 13, 1, 10, 6, 12, 11, 9, 5, 3, 8],
-                [4, 1, 14, 8, 13, 6, 2, 11, 15, 12, 9, 7, 3, 10, 5, 0],
-                [15, 12, 8, 2, 4, 9, 1, 7, 5, 11, 3, 14, 10, 0, 6, 13],
-            ],
-            # S2
-            [
-                [15, 1, 8, 14, 6, 11, 3, 4, 9, 7, 2, 13, 12, 0, 5, 10],
-                [3, 13, 4, 7, 15, 2, 8, 14, 12, 0, 1, 10, 6, 9, 11, 5],
-                [0, 14, 7, 11, 10, 4, 13, 1, 5, 8, 12, 6, 9, 3, 2, 15],
-                [13, 8, 10, 1, 3, 15, 4, 2, 11, 6, 7, 12, 0, 5, 14, 9],
-            ],
-            # S3
-            [
-                [10, 0, 9, 14, 6, 3, 15, 5, 1, 13, 12, 7, 11, 4, 2, 8],
-                [13, 7, 0, 9, 3, 4, 6, 10, 2, 8, 5, 14, 12, 11, 15, 1],
-                [13, 6, 4, 9, 8, 15, 3, 0, 11, 1, 2, 12, 5, 10, 14, 7],
-                [1, 10, 13, 0, 6, 9, 8, 7, 4, 15, 14, 3, 11, 5, 2, 12],
-            ],
-            # S4
-            [
-                [7, 13, 14, 3, 0, 6, 9, 10, 1, 2, 8, 5, 11, 12, 4, 15],
-                [13, 8, 11, 5, 6, 15, 0, 3, 4, 7, 2, 12, 1, 10, 14, 9],
-                [10, 6, 9, 0, 12, 11, 7, 13, 15, 1, 3, 14, 5, 2, 8, 4],
-                [3, 15, 0, 6, 10, 1, 13, 8, 9, 4, 5, 11, 12, 7, 2, 14],
-            ],
-            # S5
-            [
-                [2, 12, 4, 1, 7, 10, 11, 6, 8, 5, 3, 15, 13, 0, 14, 9],
-                [14, 11, 2, 12, 4, 7, 13, 1, 5, 0, 15, 10, 3, 9, 8, 6],
-                [4, 2, 1, 11, 10, 13, 7, 8, 15, 9, 12, 5, 6, 3, 0, 14],
-                [11, 8, 12, 7, 1, 14, 2, 13, 6, 15, 0, 9, 10, 4, 5, 3],
-            ],
-            # S6
-            [
-                [12, 1, 10, 15, 9, 2, 6, 8, 0, 13, 3, 4, 14, 7, 5, 11],
-                [10, 15, 4, 2, 7, 12, 9, 5, 6, 1, 13, 14, 0, 11, 3, 8],
-                [9, 14, 15, 5, 2, 8, 12, 3, 7, 0, 4, 10, 1, 13, 11, 6],
-                [4, 3, 2, 12, 9, 5, 15, 10, 11, 14, 1, 7, 6, 0, 8, 13],
-            ],
-            # S7
-            [
-                [4, 11, 2, 14, 15, 0, 8, 13, 3, 12, 9, 7, 5, 10, 6, 1],
-                [13, 0, 11, 7, 4, 9, 1, 10, 14, 3, 5, 12, 2, 15, 8, 6],
-                [1, 4, 11, 13, 12, 3, 7, 14, 10, 15, 6, 8, 0, 5, 9, 2],
-                [6, 11, 13, 8, 1, 4, 10, 7, 9, 5, 0, 15, 14, 2, 3, 12],
-            ],
-            # S8
-            [
-                [13, 2, 8, 4, 6, 15, 11, 1, 10, 9, 3, 14, 5, 0, 12, 7],
-                [1, 15, 13, 8, 10, 3, 7, 4, 12, 5, 6, 11, 0, 14, 9, 2],
-                [7, 11, 4, 1, 9, 12, 14, 2, 0, 6, 10, 13, 15, 3, 5, 8],
-                [2, 1, 14, 7, 4, 10, 8, 13, 15, 12, 9, 0, 3, 5, 6, 11],
-            ],
-        ]
+    def _generate_sbox_tables(self) -> list[list[int]]:
+        """Returns a list of 8 S-box tables, each containing 64 4-bit integers.
+
+        Returns:
+            list[list[int]]: A list of 8 S-box tables.
+        """
+        sbox_tables = []
+        num_tables = 8
+        for _ in range(num_tables):
+            sbox = []
+            num_rows = 4
+            for _ in range(num_rows):
+                num_columns = 16
+                row = self.generator.random_permutation_unique(num_columns)
+                sbox.extend(row)
+            sbox_tables.append(sbox)
+        return sbox_tables
 
     def _generate_key(self) -> str:
-        """
-        Generates a 64-bit random key for DES encryption.
+        """Generates a 64-bit random key for DES encryption.
 
         Returns:
             str: A 64-bit key in binary format.
         """
-        generated_key_64bits = format(getrandbits(64), "064b")
+        block_size = 64
+        generated_key_64bits = self.generator.random_bits(block_size)
         return generated_key_64bits
 
-    def left_circular_shift(self, block_bits):
-        """
-        Performs a single-bit left circular shift on a string of bits.
+    def left_circular_shift(self, block_bits: str) -> str:
+        """Performs a single-bit left circular shift on a string of bits.
 
-        This is used during the subkey generation process (PC-1 output) to cyclically 
+        This is used during the subkey generation process (PC-1 output) to cyclically
         shift the C and D halves. The bit from the left end is moved to the right end.
 
         Args:
@@ -128,7 +86,7 @@ class DESEncryption:
         Returns:
             str: The resulting bit string after the left circular shift.
         """
-        
+
         length = len(block_bits)
         shift_amount = 1 % length
 
@@ -146,20 +104,23 @@ class DESEncryption:
             list[str]: A list of 16 subkeys of 48 bits each.
         """
         key_64bits = self.key_64bits
-        if len(key_64bits) != 64:
+        block_pc1_size = 64
+        if len(key_64bits) != block_pc1_size:
             raise ValueError(
-                f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
+                f"Key size mismatch: expected {block_pc1_size} bits, got {len(key_64bits)} bits."
             )
 
         # 1. Apply Permuted_choice_1
         key_56bits = self.permutation.permuted_choice_1(key_64bits)
-        if len(key_56bits) != 56:
+        block_pc1_size = 56
+        if len(key_56bits) != block_pc1_size:
             raise ValueError(
-                f"Key size mismatch after PC-1: expected 56 bits, got {len(key_56bits)} bits."
+                f"Key size mismatch after PC-1: expected {block_pc1_size} bits, got {len(key_56bits)} bits."
             )
         # 2. Split into left and right 28 bits
-        C = key_56bits[:28]
-        D = key_56bits[28:]
+        half_block_pc1_size = block_pc1_size // 2
+        C = key_56bits[:half_block_pc1_size]
+        D = key_56bits[half_block_pc1_size:]
 
         # 3. Generate 16 subkeys of 48 bits each
         subkeys_48bits = []
@@ -173,9 +134,10 @@ class DESEncryption:
 
             # 6. Apply permuted_choice_2
             subkey_48bits = self.permutation.permuted_choice_2(shifted_key_56bits)
-            if len(subkey_48bits) != 48:
+            block_pc2_size = 48
+            if len(subkey_48bits) != block_pc2_size:
                 raise ValueError(
-                    f"Subkey size mismatch after PC-2: expected 48 bits, got {len(subkey_48bits)} bits."
+                    f"Subkey size mismatch after PC-2: expected {block_pc2_size} bits, got {len(subkey_48bits)} bits."
                 )
             subkeys_48bits.append(subkey_48bits)
 
@@ -214,26 +176,38 @@ class DESEncryption:
 
         result_32bits = ""
         # 1. Divide block_48bits into 8 blocks of 6 bits each
-        for i in range(8):
-            block_6bits = block_48bits[i * 6 : (i + 1) * 6]
+        num_boxes = 8
+        for sbox_index in range(num_boxes):
+
+            bits_per_block = 6
+            block_6bits = block_48bits[
+                sbox_index * bits_per_block : (sbox_index + 1) * bits_per_block
+            ]
 
             # 2. Determine row and column for S-box lookup
             row_bits = block_6bits[0] + block_6bits[5]
             col_bits = block_6bits[1:5]
 
-            row = int(row_bits, 2)  # Convert to decimal
-            col = int(col_bits, 2)  # Convert to decimal
+            # Convert binary to decimal
+            base = 2
+            row = int(row_bits, base)
+            col = int(col_bits, base)
 
-            # 3. Apply S-box lookup #TODO Change logic if tables are changed.
-            sbox_item = self.sbox_tables[i][row][col]
-            sbox_output_bits = format(sbox_item, "04b")  # Convert to 4-bit binary
+            # 3. Apply S-box lookup
+            sbox_columns = 16
+            sbox_item = self.sbox_tables[sbox_index][row * sbox_columns + col]
+
+            bits_per_sbox = 4
+            sbox_output_bits = format(sbox_item, f"0{bits_per_sbox}b")
 
             # 4. Combine results into 32-bit block
             result_32bits += sbox_output_bits
 
         return result_32bits
 
-    def round(self, left_32bits, right_32bits, subkey_48bits):
+    def round(
+        self, left_32bits: str, right_32bits: str, subkey_48bits: str
+    ) -> tuple[str, str]:
         """Applies a single round of DES encryption to the given 32-bit blocks.
 
         Args:
@@ -242,7 +216,7 @@ class DESEncryption:
             subkey_48bits (str): The 48-bit subkey for the current round.
 
         Returns:
-            tuple: A tuple containing the new left and right 32-bit blocks after the round.
+            tuple[str, str]: A tuple containing the new left and right 32-bit blocks after the round.
         """
 
         # 1. Expansion/permutation(E table) right_32bits to right_48bits
@@ -282,12 +256,15 @@ class DESEncryption:
         initial_permutation = self.permutation.initial_permutation(block_64bits)
 
         # 2. split initial_permutation into left_32bits and right_32bits
-        if len(initial_permutation) != 64:
+        block_size = 64
+        if len(initial_permutation) != block_size:
             raise ValueError(
-                f"Block size mismatch: expected 64 bits, got {len(initial_permutation)} bits."
+                f"Block size mismatch: expected {block_size} bits, got {len(initial_permutation)} bits."
             )
-        left_32bits = initial_permutation[:32]
-        right_32bits = initial_permutation[32:]
+
+        half_bits = block_size // 2
+        left_32bits = initial_permutation[:half_bits]
+        right_32bits = initial_permutation[half_bits:]
 
         # 4. Apply rounds
         for i in range(self.rounds):
@@ -337,9 +314,9 @@ class DESEncryption:
         """
         Decrypts a single 64-bit ciphertext block using the DES algorithm.
 
-        The decryption process uses the same Feistel rounds as encryption, but the 
+        The decryption process uses the same Feistel rounds as encryption, but the
         48-bit subkeys are applied in reverse order.
-        
+
         Args:
             block_64bits (str): The 64-bit block to decrypt.
 
@@ -351,17 +328,19 @@ class DESEncryption:
         initial_permutation = self.permutation.initial_permutation(block_64bits)
 
         # 2. split initial_permutation into left_32bits and right_32bits
-        if len(initial_permutation) != 64:
+        block_size = 64
+        if len(initial_permutation) != block_size:
             raise ValueError(
-                f"Block size mismatch: expected 64 bits, got {len(initial_permutation)} bits."
+                f"Block size mismatch: expected {block_size} bits, got {len(initial_permutation)} bits."
             )
-        left_32bits = initial_permutation[:32]
-        right_32bits = initial_permutation[32:]
+        half_bits = block_size // 2
+        left_32bits = initial_permutation[:half_bits]
+        right_32bits = initial_permutation[half_bits:]
 
         # 4. Apply rounds inverse round keys
-        for i in range(self.rounds):
+        for i in range(self.rounds - 1, -1, -1):
             left_32bits, right_32bits = self.round(
-                left_32bits, right_32bits, self.subkeys[self.rounds - 1 - i]
+                left_32bits, right_32bits, self.subkeys[i]
             )
 
         # 5. 32-bit swap
@@ -378,7 +357,7 @@ class DESEncryption:
     def decrypt(self, ciphertext: str) -> str:
         """Decrypts the given ciphertext using the DES algorithm.
 
-        The ciphertext is converted to binary, broken into 64-bit blocks, decrypted, 
+        The ciphertext is converted to binary, broken into 64-bit blocks, decrypted,
         padding is removed, and the result is converted back to a string.
 
         Args:
@@ -391,7 +370,11 @@ class DESEncryption:
         binary_str = self.bit_converter.str_to_binary(ciphertext)
 
         # 2. Divide binary into 64-bit blocks
-        blocks_64bits = [binary_str[i : i + 64] for i in range(0, len(binary_str), 64)]
+        block_size = 64
+        blocks_64bits = [
+            binary_str[i : i + block_size]
+            for i in range(0, len(binary_str), block_size)
+        ]
 
         # 3. Decrypt each 64-bit block
         encrypted_blocks_64bits = [
