@@ -6,7 +6,7 @@ class RotorMachine:
     The machine uses three distinct rotor wirings (permutation alphabets) generated
     randomly by a DesGenerator instance upon initialization.
     """
-    def __init__(self#, 
+    def __init__(self#, TODO Allow custom rotors
         #rotor1: list[str] = list("UCOASJNZTHPGVDKEQILWRBYFXM"),
         #rotor2: list[str] = list("ZABCDEFGHIJKLMNOPQRSTUVWXY"),
         #rotor3: list[str] = list("TAFDOCNLWEPBVSKRYXMGJHUIZQ"
