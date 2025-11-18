@@ -224,7 +224,7 @@ class DESEncryption:
             row = int(row_bits, 2)  # Convert to decimal
             col = int(col_bits, 2)  # Convert to decimal
 
-            # 3. Apply S-box lookup
+            # 3. Apply S-box lookup #TODO Change logic if tables are changed.
             sbox_item = self.sbox_tables[i][row][col]
             sbox_output_bits = format(sbox_item, "04b")  # Convert to 4-bit binary
 
