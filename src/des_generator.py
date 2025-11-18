@@ -14,6 +14,7 @@ class DesGenerator:
         alphabet = list("QWERTYUIOPASDFGHJKLZXCVBNM")
         self.random_generator.shuffle(alphabet)
         return alphabet
+
     def random_permutation(self, input_size: int, output_size: int) -> list[int]:
         """Returns a list of output_size random integers in the range [0, input_size - 1].
 
@@ -53,6 +54,17 @@ class DesGenerator:
             inverse_permutation[j] = i
         return inverse_permutation
 
+    def random_bits(self, num_bits: int) -> str:
+        """Returns a string of num_bits random bits.
+
+        Args:
+            num_bits (int): The number of bits to generate.
+
+        Returns:
+            str: A string of num_bits random bits.
+        """
+        return format(self.random_generator.getrandbits(num_bits), f"0{num_bits}b")
+
 
 if __name__ == "__main__":
     des_generator = DesGenerator()
@@ -66,6 +78,9 @@ if __name__ == "__main__":
     expansion_table = des_generator.random_permutation(4, 8)  # 4→8 bits
     print(f"Expansion table: {expansion_table}")
     print(f"Has duplicates: {len(set(expansion_table)) < len(expansion_table)}")
-    
+
     # Test random alphabet
     print(f"Shuffle example: {des_generator.random_alphabet()} ")
+
+    # Test random bits
+    print(f"Random bits: {des_generator.random_bits(64)}")
