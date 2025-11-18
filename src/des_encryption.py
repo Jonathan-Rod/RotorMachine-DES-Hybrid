@@ -5,6 +5,29 @@ from random import getrandbits
 
 
 class DESEncryption:
+    """
+    Implements the Data Encryption Standard (DES) algorithm in Electronic Codebook (ECB) mode.
+
+    The class handles key generation, subkey creation, S-box substitution, 
+    P-box permutation, and the full Feistel network for 64-bit block encryption and decryption.
+
+    Attributes:
+        rounds (int): The number of Feistel rounds (default is 16 for standard DES).
+        permutation (DESPermutation): Helper object for various permutations (IP, EP, PC-1, PC-2, P-box).
+        bit_converter (DESBitConverter): Helper object for string-to-binary and binary-to-string conversions.
+        parser (DESParser): Helper object for 64-bit block parsing and padding/deparsing.
+        key_64bits (str): The 64-bit encryption key in binary format.
+        subkeys (list[str]): A list containing the 16 48-bit subkeys used for the rounds.
+        sbox_tables (list[list[list[int]]]): The 8 S-box substitution tables.
+    
+    Args:
+        key_64bits (str, optional): A user-provided 64-bit key string in binary format. 
+                                    If None, a random 64-bit key is generated. Defaults to None.
+        rounds (int, optional): The number of DES rounds to perform. Defaults to 16.
+    
+    Raises:
+        ValueError: If a provided key_64bits is not exactly 64 bits long.
+    """
     def __init__(self, key_64bits: str = None, rounds: int = 16):
         self.rounds = rounds
         self.permutation = DESPermutation()
@@ -22,6 +45,7 @@ class DESEncryption:
 
         self.subkeys = self._generate_subkeys()
 
+        #TODO Change tables to list. 
         self.sbox_tables: list[list[list[int]]] = [
             # S1
             [
@@ -92,10 +116,20 @@ class DESEncryption:
         return generated_key_64bits
 
     def left_circular_shift(self, block_bits):
-        # Apply left circular shift to block_bits
-        length = len(block_bits)
+        """
+        Performs a single-bit left circular shift on a string of bits.
 
-        # Use modulo to handle shifts larger than the string length
+        This is used during the subkey generation process (PC-1 output) to cyclically 
+        shift the C and D halves. The bit from the left end is moved to the right end.
+
+        Args:
+            block_bits (str): The bit string (e.g., 28 bits of C or D) to shift.
+
+        Returns:
+            str: The resulting bit string after the left circular shift.
+        """
+        
+        length = len(block_bits)
         shift_amount = 1 % length
 
         shifted_string = block_bits[shift_amount:] + block_bits[:shift_amount]
@@ -300,7 +334,18 @@ class DESEncryption:
         return ciphertext
 
     def decrypt_block(self, block_64bits: str) -> str:
-        # TODO #3 Implement Decryption block logic
+        """
+        Decrypts a single 64-bit ciphertext block using the DES algorithm.
+
+        The decryption process uses the same Feistel rounds as encryption, but the 
+        48-bit subkeys are applied in reverse order.
+        
+        Args:
+            block_64bits (str): The 64-bit block to decrypt.
+
+        Returns:
+            str: The decrypted 64-bit plaintext block.
+        """
 
         # 1. Apply initial permutation
         initial_permutation = self.permutation.initial_permutation(block_64bits)
@@ -331,6 +376,17 @@ class DESEncryption:
         return inverse_initial_permutation
 
     def decrypt(self, ciphertext: str) -> str:
+        """Decrypts the given ciphertext using the DES algorithm.
+
+        The ciphertext is converted to binary, broken into 64-bit blocks, decrypted, 
+        padding is removed, and the result is converted back to a string.
+
+        Args:
+            ciphertext (str): The ciphertext to decrypt.
+
+        Returns:
+            str: The final decrypted plaintext.
+        """
         # 1. Convert string to binary
         binary_str = self.bit_converter.str_to_binary(ciphertext)
 
