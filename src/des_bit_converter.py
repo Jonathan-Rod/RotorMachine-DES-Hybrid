@@ -1,6 +1,6 @@
 class DESBitConverter:
 
-    def str_to_binary(self, string):  # TODO
+    def str_to_binary(self, string):  
         """Convert a ascii string to binary string
 
         Args:
@@ -11,7 +11,7 @@ class DESBitConverter:
         """
         return "".join([format(ord(char), "08b") for char in string])
 
-    def binary_to_str(self, binary_string):  # TODO
+    def binary_to_str(self, binary_string):  
         """Convert a binary string to ascii string
 
         Args:

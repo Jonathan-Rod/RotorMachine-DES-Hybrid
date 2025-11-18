@@ -151,7 +151,7 @@ class DESEncryption:
                 f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
             )
 
-        # 1. TODO Apply Permuted_choice_1
+        # 1. Apply Permuted_choice_1
         key_56bits = self.permutation.permuted_choice_1(key_64bits)
         if len(key_56bits) != 56:
             raise ValueError(
@@ -161,17 +161,17 @@ class DESEncryption:
         C = key_56bits[:28]
         D = key_56bits[28:]
 
-        # 3. TODO Generate 16 subkeys of 48 bits each
+        # 3. Generate 16 subkeys of 48 bits each
         subkeys_48bits = []
         for i in range(self.rounds):
-            # 4. TODO Left circular shift both halves
+            # 4. Left circular shift both halves
             C = self.left_circular_shift(C)
             D = self.left_circular_shift(D)
 
             # 5. Combine halves back into 56 bits
             shifted_key_56bits = C + D
 
-            # 6. TODO Apply permuted_choice_2
+            # 6. Apply permuted_choice_2
             subkey_48bits = self.permutation.permuted_choice_2(shifted_key_56bits)
             if len(subkey_48bits) != 48:
                 raise ValueError(

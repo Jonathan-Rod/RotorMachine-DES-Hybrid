@@ -2,7 +2,7 @@ from des_generator import DesGenerator
 
 
 class DESPermutation:
-    def __init__(self):  # TODO
+    def __init__(self): 
         # DES Initial Permutation table 0-index tables
         self.generator = DesGenerator()
 
