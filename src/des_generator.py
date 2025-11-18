@@ -1,0 +1,59 @@
+from random import Random
+
+
+class DesGenerator:
+    def __init__(self, seed=None):
+        self.random_generator = Random(seed)
+
+    def random_permutation(self, input_size: int, output_size: int) -> list[int]:
+        """Returns a list of output_size random integers in the range [0, input_size - 1].
+
+        Args:
+            input_size (int): The size of the range from which to select the random integers.
+            output_size (int): The number of random integers to generate.
+
+        Returns:
+            list[int]: A list of output_size random integers.
+        """
+        return [
+            self.random_generator.randint(0, input_size - 1) for _ in range(output_size)
+        ]
+
+    def random_permutation_unique(self, size: int) -> list[int]:
+        """Returns a list of unique random integers in the range [0, size - 1] of length size.
+
+        Args:
+            size (int): The size of the range from which to select the random integers and the length of the returned list.
+
+        Returns:
+            list[int]: A list of unique random integers.
+        """
+        return self.random_generator.sample(range(size), size)
+
+    def inverse_permutation(self, permutation: list[int]) -> list[int]:
+        """Returns the inverse of a given permutation.
+
+        Args:
+            permutation (list[int]): The permutation to invert.
+
+        Returns:
+            list[int]: The inverse permutation.
+        """
+        inverse_permutation = [0] * len(permutation)
+        for i, j in enumerate(permutation):
+            inverse_permutation[j] = i
+        return inverse_permutation
+
+
+if __name__ == "__main__":
+    des_generator = DesGenerator()
+
+    # Test random permutation (no duplicates)
+    unique_permutation = des_generator.random_permutation_unique(6)
+    print(f"Unique permutation: {unique_permutation}")
+    print(f"All unique: {len(set(unique_permutation)) == len(unique_permutation)}")
+
+    # Test random permutation (with duplicates)
+    expansion_table = des_generator.random_permutation(4, 8)  # 4→8 bits
+    print(f"Expansion table: {expansion_table}")
+    print(f"Has duplicates: {len(set(expansion_table)) < len(expansion_table)}")
