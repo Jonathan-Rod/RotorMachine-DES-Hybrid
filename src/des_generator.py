@@ -13,7 +13,7 @@ class DesGenerator:
         """
         alphabet = list("QWERTYUIOPASDFGHJKLZXCVBNM")
         self.random_generator.shuffle(alphabet)
-        return "".join(alphabet)
+        return alphabet
     def random_permutation(self, input_size: int, output_size: int) -> list[int]:
         """Returns a list of output_size random integers in the range [0, input_size - 1].
 
