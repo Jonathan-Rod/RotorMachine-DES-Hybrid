@@ -2,96 +2,81 @@ class DESParser:
     def __init__(self, block_size=64):
         self.block_size = block_size
 
-    def parse(self, binary_string):  # TODO
-        """Returns a list of binary string blocks of fixed size.
-
-        Applies padding using a numeric scheme where the number of missing bytes
-        is repeated as 8-bit binary values to fill the block.
-
-        Args:
-            binary_string (str): The binary string to split into blocks.
-
-        Returns:
-            List[str]: List of binary string blocks.
-        """
-        remainder = len(binary_string) % self.block_size
-        padding_bytes = (self.block_size - remainder) // 8 if remainder != 0 else 8
-
-        padding_byte = format(padding_bytes, "08b")
-        padding = padding_byte * padding_bytes
-
-        padded_binary = binary_string + padding
-
+    def split_into_blocks(self, binary_string: str) -> list[str]:
         return [
-            padded_binary[i : i + self.block_size]
-            for i in range(0, len(padded_binary), self.block_size)
+            binary_string[i : i + self.block_size]
+            for i in range(0, len(binary_string), self.block_size)
         ]
 
-    def deparse(self, binary_string):  # TODO
-        """Removes padding from a binary string that was padded using numeric byte repetition.
+    def parse(self, binary_string: str):
+        """Parse a binary string into blocks of size self.block_size.
 
         Args:
-            binary_string (str): The binary string to remove padding from.
+            binary_string (str): The binary string to parse
 
         Returns:
-            str : The unpadded binary string
-        """
-        if len(binary_string) < 8:
-            return binary_string  # No padding posible
+            list[str]: A list of blocks of size self.block_size
 
-        last_byte = binary_string[-8:]
+        Notes:
+            f the last block is missing 3 bytes, the padding will be b'\x03\x03\x03'.
+        """
+        # 1. Split into blocks
+        blocks_bits = self.split_into_blocks(binary_string)
+
+        # 2. Apply padding to last block if needed
+        last_block = blocks_bits[-1]
+
+        # Calculate missing bits
+        missing_bits = self.block_size - len(last_block)
+
+        if missing_bits > 0:
+            # Calculate how many padding bytes we need
+            padding_bytes = missing_bits // 8
+
+            # Create padding (numeric byte repetition)
+            padding_byte_value = padding_bytes
+            padding_byte = format(padding_byte_value, "08b")
+            padding = padding_byte * padding_bytes
+
+            blocks_bits[-1] = last_block + padding
+
+        return blocks_bits
+
+    def deparse(self, blocks_bits: list[str]) -> str:
+        for i, block_bits in enumerate(blocks_bits):
+            if len(block_bits) != self.block_size:
+                raise ValueError(
+                    f"Block {i} size mismatch: expected {self.block_size} bits, got {len(block_bits)} bits."
+                )
+        # 1. Combine blocks
+        combined = "".join(blocks_bits)
+        if len(combined) < 8:
+            return combined
+
+        # 2. Check last byte for padding value
+        last_byte = combined[-8:]
         padding_value = int(last_byte, 2)
 
-        padding_section = binary_string[-padding_value * 8 :]
+        # 3. Check if padding is correct
+        padding_section = combined[-padding_value * 8 :]
         expected_padding = format(padding_value, "08b") * padding_value
 
+        # 4. Remove padding
         if padding_section == expected_padding:
-            return binary_string[: -padding_value * 8]
+            return combined[: -padding_value * 8]
         else:
-            return binary_string  # No se reconoce padding válido, se devuelve todo
-
-    def deparse_blocks(self, blocks):  # TODO
-        """Deparses a list of binary string blocks into a single binary string,
-        removing padding.
-
-        Verifica que todos los bloques tengan el tamaño correcto antes de unirlos.
-
-        Args:
-            blocks (List[str]): List of binary string blocks.
-
-        Returns:
-            str: The unpadded binary string.
-        """
-        for block in blocks:
-            if len(block) != self.block_size:
-                raise ValueError(
-                    f"Block size mismatch: expected {self.block_size} bits, got {len(block)} bits."
-                )
-
-        combined = "".join(blocks)
-        return self.deparse(combined)
-
+            # If padding is not correct, return the original string
+            return combined
 
 from des_bit_converter import DESBitConverter
 
 if __name__ == "__main__":
-
-    converter = DESBitConverter()
-
-    string = "This is a test string for DESParser. It should handle padding correctly. It should also be able to deparse blocks correctly."
-
-    print(f"Test string: {string}")
-
-    test_binary = converter.str_to_binary(string)
-    print(f"Test binary: {test_binary}")
-
-    parser = DESParser()
-
-    blocks = parser.parse(test_binary)
-    print(f"Parsed blocks: {blocks}")
-
-    deparsed = parser.deparse_blocks(blocks)
-    print(f"Deparsed binary: {deparsed}")
-
-    original_string = converter.binary_to_str(deparsed)
-    print(f"Original string: {original_string}")
+    des_parser = DESParser()
+    des_bit_converter = DESBitConverter()
+    test_string = "Hello"
+    binary = des_bit_converter.str_to_binary(test_string)
+    print(f"String to binary: {binary}")
+    blocks = des_parser.parse(binary)
+    print(f"Blocks: {blocks}")
+    converted_back = des_bit_converter.binary_to_str(des_parser.deparse(blocks))
+    print(f"Binary to string: {converted_back}")

@@ -212,7 +212,7 @@ class DESEncryption:
         """
 
         # 1. Expansion/permutation(E table) right_32bits to right_48bits
-        right_48bits = self.permutation.e_table(right_32bits)
+        right_48bits = self.permutation.expansion(right_32bits)
 
         # 2. XOR with expanded right_48bits and subkey_48bits
         XOR_48bits = self._xor(right_48bits, subkey_48bits)
@@ -343,13 +343,10 @@ class DESEncryption:
         ]
 
         # 4. Remove padding here
-        deparsed_decrypted_blocks_64bits = self.parser.deparse_blocks(
-            encrypted_blocks_64bits
-        )
+        deparsed_decrypted_binary = self.parser.deparse(encrypted_blocks_64bits)
 
         # 5. Join encrypted blocks and convert to string
-        decrypted_binary = "".join(deparsed_decrypted_blocks_64bits)
-        plaintext = self.bit_converter.binary_to_str(decrypted_binary)
+        plaintext = self.bit_converter.binary_to_str(deparsed_decrypted_binary)
         return plaintext
 
 
@@ -360,4 +357,3 @@ if __name__ == "__main__":
     print(f"Ciphertext: {ciphertext}")
     decrypted_text = des.decrypt(ciphertext)
     print(f"Decrypted text: {decrypted_text}")
-
