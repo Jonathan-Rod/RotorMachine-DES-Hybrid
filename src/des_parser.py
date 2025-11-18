@@ -3,6 +3,16 @@ class DESParser:
         self.block_size = block_size
 
     def split_into_blocks(self, binary_string: str) -> list[str]:
+        """
+        Splits a binary string into blocks of size self.block_size, without padding.
+        The last block may be shorter than the block_size.
+
+        Args:
+            binary_string (str): The binary string to split.
+
+        Returns:
+            list[str]: A list of binary string blocks.
+        """
         return [
             binary_string[i : i + self.block_size]
             for i in range(0, len(binary_string), self.block_size)
@@ -43,6 +53,23 @@ class DESParser:
         return blocks_bits
 
     def deparse(self, blocks_bits: list[str]) -> str:
+        """
+        Combines the decrypted binary blocks and removes padding from the end.
+
+        Padding is checked by looking at the last byte (8 bits) of the combined 
+        binary string to determine the padding value (N). If the last N bytes 
+        match the expected padding pattern, they are removed.
+
+        Args:
+            blocks_bits (list[str]): A list of 64-bit decrypted binary blocks.
+
+        Raises:
+            ValueError: If any block in the list is not the expected block_size.
+
+        Returns:
+            str: The combined binary string with the padding removed, or the original
+                 combined string if padding is invalid or not present.
+        """
         for i, block_bits in enumerate(blocks_bits):
             if len(block_bits) != self.block_size:
                 raise ValueError(
