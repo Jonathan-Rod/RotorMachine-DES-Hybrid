@@ -6,27 +6,35 @@ class RotorMachine:
     The machine uses three distinct rotor wirings (permutation alphabets) generated
     randomly by a DesGenerator instance upon initialization.
     """
-    def __init__(self#, TODO Allow custom rotors
-        #rotor1: list[str] = list("UCOASJNZTHPGVDKEQILWRBYFXM"),
-        #rotor2: list[str] = list("ZABCDEFGHIJKLMNOPQRSTUVWXY"),
-        #rotor3: list[str] = list("TAFDOCNLWEPBVSKRYXMGJHUIZQ"
+    def __init__(self, 
+        rotor1: list[str] = None,
+        rotor2: list[str] = None,
+        rotor3: list[str] = None
         ):
 
         """
-        Initializes the RotorMachine by creating three unique, random rotor wirings.
-        
-        It instantiates a DesGenerator internally to produce the rotor configurations
-        and checks that all rotors have the required length (26 unique characters).
-
+        Initializes the RotorMachine with either custom or randomly generated rotor wirings.
+    
+        If custom rotors are provided, they must each contain exactly 26 unique characters.
+        If no rotors are provided, three random rotor wirings will be generated using DesGenerator.
+    
+        Args:
+            rotor1: Optional custom wiring for rotor 1 (default: randomly generated)
+            rotor2: Optional custom wiring for rotor 2 (default: randomly generated)
+            rotor3: Optional custom wiring for rotor 3 (default: randomly generated)
+    
         Raises:
-            ValueError: If a generated rotor does not contain 26 unique characters.
+            ValueError: If a rotor does not contain 26 unique characters.
         """
 
         self.generator = DesGenerator()
 
-        rotor1: list[str] = self.generator.random_alphabet()
-        rotor2: list[str] = self.generator.random_alphabet()
-        rotor3: list[str] = self.generator.random_alphabet()
+        if rotor1 is None:
+            rotor1 = self.generator.random_alphabet()
+        if rotor2 is None:
+            rotor2 = self.generator.random_alphabet()
+        if rotor3 is None:
+            rotor3 = self.generator.random_alphabet()
 
         self.rotor1_original = rotor1
         self.rotor2_original = rotor2
