@@ -5,6 +5,15 @@ class DesGenerator:
     def __init__(self, seed=None):
         self.random_generator = Random(seed)
 
+    def random_alphabet(self) -> str:
+        """Returns a shuffled alphabet string.
+
+        Returns:
+            str: A shuffled alphabet string.
+        """
+        alphabet = list("QWERTYUIOPASDFGHJKLZXCVBNM")
+        self.random_generator.shuffle(alphabet)
+        return "".join(alphabet)
     def random_permutation(self, input_size: int, output_size: int) -> list[int]:
         """Returns a list of output_size random integers in the range [0, input_size - 1].
 
@@ -57,3 +66,6 @@ if __name__ == "__main__":
     expansion_table = des_generator.random_permutation(4, 8)  # 4→8 bits
     print(f"Expansion table: {expansion_table}")
     print(f"Has duplicates: {len(set(expansion_table)) < len(expansion_table)}")
+    
+    # Test random alphabet
+    print(f"Shuffle example: {des_generator.random_alphabet()} ")
