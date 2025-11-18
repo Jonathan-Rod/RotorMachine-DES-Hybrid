@@ -1,4 +1,6 @@
 from des_generator import DesGenerator
+
+
 class RotorMachine:
     """
     Implements a basic three-rotor cipher machine.
@@ -6,23 +8,24 @@ class RotorMachine:
     The machine uses three distinct rotor wirings (permutation alphabets) generated
     randomly by a DesGenerator instance upon initialization.
     """
-    def __init__(self, 
+
+    def __init__(
+        self,
         rotor1: list[str] = None,
         rotor2: list[str] = None,
-        rotor3: list[str] = None
-        ):
-
+        rotor3: list[str] = None,
+    ):
         """
         Initializes the RotorMachine with either custom or randomly generated rotor wirings.
-    
+
         If custom rotors are provided, they must each contain exactly 26 unique characters.
         If no rotors are provided, three random rotor wirings will be generated using DesGenerator.
-    
+
         Args:
             rotor1: Optional custom wiring for rotor 1 (default: randomly generated)
             rotor2: Optional custom wiring for rotor 2 (default: randomly generated)
             rotor3: Optional custom wiring for rotor 3 (default: randomly generated)
-    
+
         Raises:
             ValueError: If a rotor does not contain 26 unique characters.
         """
@@ -40,7 +43,9 @@ class RotorMachine:
         self.rotor2_original = rotor2
         self.rotor3_original = rotor3
         self.rotor_length = 26
-        for i, rotor in enumerate([rotor1, rotor2, rotor3], start=1):
+        for i, rotor in enumerate(
+            [self.rotor1_original, self.rotor2_original, self.rotor3_original], start=1
+        ):
             if len(set(rotor)) != self.rotor_length:
                 raise ValueError(
                     f"Rotor {i} must contain {self.rotor_length} unique characters."
@@ -83,10 +88,10 @@ class RotorMachine:
             self.rotor3 = self.rotor3[1:] + [self.rotor3[0]]
             self.rotor3_pos = (self.rotor3_pos + 1) % self.rotor_length
 
-    def encrypt_char(self, char1): # O(N)
+    def encrypt_char(self, char1):  # O(N)
         """
         Encrypts a single character using the current rotor configuration.
-        
+
         The character goes through the permutation sequence: Rotor 1 -> Rotor 2 -> Rotor 3.
         The rotors rotate after the character is encrypted.
 
@@ -101,11 +106,11 @@ class RotorMachine:
             return char1
 
         # Here is the ecryption logic
-        char2 = self.rotor2[self.rotor1.index(char1)] # O(1)
-        char3 = self.rotor3[self.rotor2.index(char2)] # O(1)
+        char2 = self.rotor2[self.rotor1.index(char1)]  # O(1)
+        char3 = self.rotor3[self.rotor2.index(char2)]  # O(1)
 
         # Apply rotation after each character
-        self.rotate_rotors() # O(N)
+        self.rotate_rotors()  # O(N)
 
         return char3
 
@@ -171,3 +176,39 @@ class RotorMachine:
             decrypted_text += self.decrypt_char(char)
         return decrypted_text
 
+    def get_rotor_state_dict(self) -> dict:
+        """Returns the current state of the rotor machine
+
+        Returns:
+            dict: Dictionary containing the current state of the rotor machine
+        """
+        return {
+            "rotor1": self.rotor1,
+            "rotor2": self.rotor2,
+            "rotor3": self.rotor3,
+            "rotor1_pos": self.rotor1_pos,
+            "rotor2_pos": self.rotor2_pos,
+            "rotor3_pos": self.rotor3_pos,
+            "rotor1_current": self.rotor1[0],
+            "rotor2_current": self.rotor2[0],
+            "rotor3_current": self.rotor3[0],
+        }
+
+
+if __name__ == "__main__":
+
+    # Using custom rotors
+    rotor1 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    rotor2 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    rotor3 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    rotor_machine = RotorMachine(rotor1=rotor1, rotor2=rotor2, rotor3=rotor3)
+
+    plaintext = "Hemos terminado la implementación de rotors."
+
+    ciphertext = rotor_machine.encrypt(plaintext)
+    print(rotor_machine.get_rotor_state_dict())
+    print(f"Ciphertext: {ciphertext}")
+
+    decrypted_text = rotor_machine.decrypt(ciphertext)
+    print(rotor_machine.get_rotor_state_dict())
+    print(f"Decrypted text: {decrypted_text}")

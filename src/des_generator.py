@@ -5,11 +5,11 @@ class DesGenerator:
     def __init__(self, seed=None):
         self.random_generator = Random(seed)
 
-    def random_alphabet(self) -> str:
+    def random_alphabet(self) -> list[str]:
         """Returns a shuffled alphabet string.
 
         Returns:
-            str: A shuffled alphabet string.
+            list[str]: A list of shuffled alphabet characters.
         """
         alphabet = list("QWERTYUIOPASDFGHJKLZXCVBNM")
         self.random_generator.shuffle(alphabet)
