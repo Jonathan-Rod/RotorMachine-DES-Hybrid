@@ -1,11 +1,33 @@
+from des_generator import DesGenerator
 class RotorMachine:
+    """
+    Implements a basic three-rotor cipher machine.
 
-    def __init__(
-        self,
-        rotor1: list[str] = list("UCOASJNZTHPGVDKEQILWRBYFXM"),
-        rotor2: list[str] = list("ZABCDEFGHIJKLMNOPQRSTUVWXY"),
-        rotor3: list[str] = list("TAFDOCNLWEPBVSKRYXMGJHUIZQ"),
-    ):
+    The machine uses three distinct rotor wirings (permutation alphabets) generated
+    randomly by a DesGenerator instance upon initialization.
+    """
+    def __init__(self#, 
+        #rotor1: list[str] = list("UCOASJNZTHPGVDKEQILWRBYFXM"),
+        #rotor2: list[str] = list("ZABCDEFGHIJKLMNOPQRSTUVWXY"),
+        #rotor3: list[str] = list("TAFDOCNLWEPBVSKRYXMGJHUIZQ"
+        ):
+
+        """
+        Initializes the RotorMachine by creating three unique, random rotor wirings.
+        
+        It instantiates a DesGenerator internally to produce the rotor configurations
+        and checks that all rotors have the required length (26 unique characters).
+
+        Raises:
+            ValueError: If a generated rotor does not contain 26 unique characters.
+        """
+
+        self.generator = DesGenerator()
+
+        rotor1: list[str] = self.generator.random_alphabet()
+        rotor2: list[str] = self.generator.random_alphabet()
+        rotor3: list[str] = self.generator.random_alphabet()
+
         self.rotor1_original = rotor1
         self.rotor2_original = rotor2
         self.rotor3_original = rotor3
@@ -18,6 +40,12 @@ class RotorMachine:
         self.reset_rotors()
 
     def reset_rotors(self):
+        """
+        Resets the current state of the machine.
+
+        This sets the active rotors back to their original wirings and resets all
+        rotor position counters (rotor1_pos, rotor2_pos, rotor3_pos) to 0.
+        """
         self.rotor1 = self.rotor1_original.copy()
         self.rotor2 = self.rotor2_original.copy()
         self.rotor3 = self.rotor3_original.copy()
@@ -26,6 +54,13 @@ class RotorMachine:
         self.rotor3_pos = 0
 
     def rotate_rotors(self):
+        """
+        Rotates the rotors according to the internal stepping mechanism.
+
+        Rotor 1 (fastest) rotates every character input.
+        Rotor 2 rotates when Rotor 1 completes half a revolution.
+        Rotor 3 rotates when Rotor 2 completes a full revolution.
+        """
         # Fast rotor
         self.rotor1 = self.rotor1[1:] + [self.rotor1[0]]
         self.rotor1_pos = (self.rotor1_pos + 1) % self.rotor_length
@@ -41,6 +76,19 @@ class RotorMachine:
             self.rotor3_pos = (self.rotor3_pos + 1) % self.rotor_length
 
     def encrypt_char(self, char1): # O(N)
+        """
+        Encrypts a single character using the current rotor configuration.
+        
+        The character goes through the permutation sequence: Rotor 1 -> Rotor 2 -> Rotor 3.
+        The rotors rotate after the character is encrypted.
+
+        Args:
+            char1 (str): The single plaintext character to encrypt.
+
+        Returns:
+            str: The resulting ciphertext character, or the original character if it's
+                 not part of the rotor alphabet (e.g., punctuation or space).
+        """
         if char1 not in self.rotor1:
             return char1
 
@@ -54,6 +102,19 @@ class RotorMachine:
         return char3
 
     def decrypt_char(self, char3):
+        """
+        Decrypts a single character using the current rotor configuration.
+
+        The character goes through the inverse permutation sequence: Rotor 3 <- Rotor 2 <- Rotor 1.
+        The rotors rotate after the character is decrypted.
+
+        Args:
+            char3 (str): The single ciphertext character to decrypt.
+
+        Returns:
+            str: The resulting plaintext character, or the original character if it's
+                 not part of the rotor alphabet.
+        """
         if char3 not in self.rotor3:
             return char3
 
@@ -67,6 +128,17 @@ class RotorMachine:
         return char1
 
     def encrypt(self, text):
+        """
+        Encrypts an entire string by processing each character sequentially.
+
+        The rotors are reset before encryption begins. All input is converted to uppercase.
+
+        Args:
+            text (str): The plaintext string to be encrypted.
+
+        Returns:
+            str: The resulting ciphertext string.
+        """
         self.reset_rotors()
         encrypted_text = ""
         for char in text.upper():
@@ -74,6 +146,17 @@ class RotorMachine:
         return encrypted_text
 
     def decrypt(self, text):
+        """
+        Decrypts an entire string by processing each character sequentially.
+
+        The rotors are reset before decryption begins. All input is converted to uppercase.
+
+        Args:
+            text (str): The ciphertext string to be decrypted.
+
+        Returns:
+            str: The resulting plaintext string.
+        """
         self.reset_rotors()
         decrypted_text = ""
         for char in text.upper():
