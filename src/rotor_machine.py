@@ -3,6 +3,7 @@ from des_generator import DesGenerator
 
 class RotorMachine:
     # Note I am assuming rotors are length 52 (A-Z) + (a-z)
+    # TODO add support to other ascii characters (Printable Characters (32-126): Includes letters (both uppercase and lowercase), digits (0-9), punctuation marks, and special symbols.
     def __init__(
         self,
         rotor1: list[str] = None,
