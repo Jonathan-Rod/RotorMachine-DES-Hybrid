@@ -1,4 +1,5 @@
 from random import Random
+import string
 
 
 class DesGenerator:
@@ -11,7 +12,7 @@ class DesGenerator:
         Returns:
             list[str]: A list of shuffled alphabet characters.
         """
-        alphabet = list("QWERTYUIOPASDFGHJKLZXCVBNM")
+        alphabet = list(string.ascii_uppercase + string.ascii_lowercase + string.digits + string.punctuation + " ")
         self.random_generator.shuffle(alphabet)
         return alphabet
 
