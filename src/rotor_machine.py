@@ -196,11 +196,7 @@ class RotorMachine:
 
 if __name__ == "__main__":
 
-    # Using custom rotors
-    rotor1 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    rotor2 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    rotor3 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    rotor_machine = RotorMachine(rotor1=rotor1, rotor2=rotor2, rotor3=rotor3)
+    rotor_machine = RotorMachine()
 
     plaintext = "Hemos terminado la implementación de rotors."
 
