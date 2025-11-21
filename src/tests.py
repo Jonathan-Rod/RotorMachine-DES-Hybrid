@@ -674,8 +674,6 @@ def run_custom_rotor_machine_test():
     test_string = "Run custom rotor machine test."
     encrypted = rotor_machine.encrypt(test_string)
     decrypted = rotor_machine.decrypt(encrypted)
-    print(encrypted)
-    print(decrypted)
     return test_string == decrypted
 
 
