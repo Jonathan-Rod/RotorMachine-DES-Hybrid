@@ -2,307 +2,65 @@ from des_generator import DesGenerator
 
 
 class DESPermutation:
-    def __init__(self): 
+    # NOTE: All tables are 0-indexed
+    def __init__(
+        self,
+        initial_permutation_table: list[int] = None,
+        inverse_initial_permutation_table: list[int] = None,
+        expansion_table: list[int] = None,
+        permuted_choice_1_table: list[
+            int
+        ] = None,  # NOTE I am assuming that first 56 indexes are the key bits and last 8 indexes are parity bits.
+        permuted_choice_2_table: list[int] = None,
+        p_box_table: list[int] = None,
+    ):
         # DES Initial Permutation table 0-index tables
         self.generator = DesGenerator()
 
         # initial_permutation_table: 64
-        self.initial_permutation_table = self.generator.random_permutation_unique(64)
+        if initial_permutation_table is not None:
+            self.initial_permutation_table = initial_permutation_table
+        else:
+            self.initial_permutation_table = self.generator.random_permutation_unique(
+                64
+            )
 
         # inverse_initial_permutation_table: 64
-        self.inverse_initial_permutation_table = self.generator.inverse_permutation(
-            self.initial_permutation_table
-        )
+        if inverse_initial_permutation_table is not None:
+            self.inverse_initial_permutation_table = inverse_initial_permutation_table
+        else:
+            self.inverse_initial_permutation_table = self.generator.inverse_permutation(
+                self.initial_permutation_table
+            )
 
         # expansion_table: 32 -> 48
-        self.expansion_table = self.generator.random_permutation(32, 48)
+        if expansion_table is not None:
+            self.expansion_table = expansion_table
+        else:
+            self.expansion_table = self.generator.random_permutation(32, 48)
+
+        # permuted_choice_1_table: 64 -> 56
+        if permuted_choice_1_table is not None:
+            self.permuted_choice_1_table = permuted_choice_1_table[:56]
+            # TODO unused
+            self.permuted_choice_1_parity_bits_table = permuted_choice_1_table[56:]
+        else:
+            indexes_64 = self.generator.random_permutation_unique(64)
+            self.permuted_choice_1_table = indexes_64[:56]
+            # TODO unused
+            self.permuted_choice_1_parity_bits_table = indexes_64[56:]
 
         # permuted_choice_2_table: 56
-        self.permuted_choice_2_table = self.generator.random_permutation_unique(56)
+        if permuted_choice_2_table is not None:
+            self.permuted_choice_2_table = permuted_choice_2_table
+        else:
+            self.permuted_choice_2_table = self.generator.random_permutation_unique(56)
 
         # p_box_table: 32
-        self.p_box_table = self.generator.random_permutation_unique(32)
-
-        # self.initial_permutation_table = [
-        #     58,
-        #     50,
-        #     42,
-        #     34,
-        #     26,
-        #     18,
-        #     10,
-        #     2,
-        #     60,
-        #     52,
-        #     44,
-        #     36,
-        #     28,
-        #     20,
-        #     12,
-        #     4,
-        #     62,
-        #     54,
-        #     46,
-        #     38,
-        #     30,
-        #     22,
-        #     14,
-        #     6,
-        #     64,
-        #     56,
-        #     48,
-        #     40,
-        #     32,
-        #     24,
-        #     16,
-        #     8,
-        #     57,
-        #     49,
-        #     41,
-        #     33,
-        #     25,
-        #     17,
-        #     9,
-        #     1,
-        #     59,
-        #     51,
-        #     43,
-        #     35,
-        #     27,
-        #     19,
-        #     11,
-        #     3,
-        #     61,
-        #     53,
-        #     45,
-        #     37,
-        #     29,
-        #     21,
-        #     13,
-        #     5,
-        #     63,
-        #     55,
-        #     47,
-        #     39,
-        #     31,
-        #     23,
-        #     15,
-        #     7,
-        # ]
-
-        # # DES Expansion table
-        # self.expansion_table = [
-        #     32,
-        #     1,
-        #     2,
-        #     3,
-        #     4,
-        #     5,
-        #     4,
-        #     5,
-        #     6,
-        #     7,
-        #     8,
-        #     9,
-        #     8,
-        #     9,
-        #     10,
-        #     11,
-        #     12,
-        #     13,
-        #     12,
-        #     13,
-        #     14,
-        #     15,
-        #     16,
-        #     17,
-        #     16,
-        #     17,
-        #     18,
-        #     19,
-        #     20,
-        #     21,
-        #     20,
-        #     21,
-        #     22,
-        #     23,
-        #     24,
-        #     25,
-        #     24,
-        #     25,
-        #     26,
-        #     27,
-        #     28,
-        #     29,
-        #     28,
-        #     29,
-        #     30,
-        #     31,
-        #     32,
-        #     1,
-        # ]
-
-        # # DES Inverse Initial Permutation table
-        # self.inverse_initial_permutation_table = [
-        #     40,
-        #     8,
-        #     48,
-        #     16,
-        #     56,
-        #     24,
-        #     64,
-        #     32,
-        #     39,
-        #     7,
-        #     47,
-        #     15,
-        #     55,
-        #     23,
-        #     63,
-        #     31,
-        #     38,
-        #     6,
-        #     46,
-        #     14,
-        #     54,
-        #     22,
-        #     62,
-        #     30,
-        #     37,
-        #     5,
-        #     45,
-        #     13,
-        #     53,
-        #     21,
-        #     61,
-        #     29,
-        #     36,
-        #     4,
-        #     44,
-        #     12,
-        #     52,
-        #     20,
-        #     60,
-        #     28,
-        #     35,
-        #     3,
-        #     43,
-        #     11,
-        #     51,
-        #     19,
-        #     59,
-        #     27,
-        #     34,
-        #     2,
-        #     42,
-        #     10,
-        #     50,
-        #     18,
-        #     58,
-        #     26,
-        #     33,
-        #     1,
-        #     41,
-        #     9,
-        #     49,
-        #     17,
-        #     57,
-        #     25,
-        # ]
-
-        # self.permuted_choice_2_table = [
-        #     6,
-        #     25,
-        #     39,
-        #     38,
-        #     55,
-        #     28,
-        #     16,
-        #     2,
-        #     53,
-        #     46,
-        #     30,
-        #     9,
-        #     19,
-        #     27,
-        #     21,
-        #     7,
-        #     32,
-        #     13,
-        #     20,
-        #     52,
-        #     23,
-        #     34,
-        #     18,
-        #     35,
-        #     17,
-        #     10,
-        #     43,
-        #     31,
-        #     11,
-        #     5,
-        #     47,
-        #     42,
-        #     45,
-        #     26,
-        #     51,
-        #     44,
-        #     15,
-        #     3,
-        #     36,
-        #     50,
-        #     37,
-        #     56,
-        #     12,
-        #     14,
-        #     49,
-        #     29,
-        #     22,
-        #     8,
-        #     4,
-        #     33,
-        #     54,
-        #     40,
-        #     24,
-        #     48,
-        #     41,
-        #     1,
-        # ]
-
-        # self.p_box_table = [
-        #     16,
-        #     7,
-        #     20,
-        #     21,
-        #     29,
-        #     12,
-        #     28,
-        #     17,
-        #     1,
-        #     15,
-        #     23,
-        #     26,
-        #     5,
-        #     18,
-        #     31,
-        #     10,
-        #     2,
-        #     8,
-        #     24,
-        #     14,
-        #     32,
-        #     27,
-        #     3,
-        #     9,
-        #     19,
-        #     13,
-        #     30,
-        #     6,
-        #     22,
-        #     11,
-        #     4,
-        #     25,
-        # ]
+        if p_box_table is not None:
+            self.p_box_table = p_box_table
+        else:
+            self.p_box_table = self.generator.random_permutation_unique(32)
 
     def permutate(self, block_bits: str, table: list[int]) -> str:
         """
@@ -351,15 +109,12 @@ class DESPermutation:
             raise ValueError(
                 f"Key size mismatch: expected 64 bits, got {len(key_64bits)} bits."
             )
-        blocks_7bits = []
-        for i in range(8):
-            block_8bits = key_64bits[i * 8 : (i + 1) * 8]
-            # Assuming parity bit convention is the first bit of each block
-            block_7bits = block_8bits[1:]  # Remove parity bit
-            blocks_7bits.append(block_7bits)
+        block_56bits = self.permutate(key_64bits, self.permuted_choice_1_table)
+        parity_8bits = self.permutate(
+            key_64bits, self.permuted_choice_1_parity_bits_table
+        )
 
-        block_56bits = "".join(blocks_7bits)
-        return block_56bits
+        return block_56bits, parity_8bits
 
     def permuted_choice_2(self, key_56bits: str):
         """Permutes the 56-bit key and concatenates both parts and applies permutation again.

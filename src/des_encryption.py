@@ -3,31 +3,8 @@ from des_permutation import DESPermutation
 from des_bit_converter import DESBitConverter
 from des_parser import DESParser
 
+
 class DESEncryption:
-    """Implements the Data Encryption Standard (DES) algorithm in Electronic Codebook (ECB) mode.
-
-    The class handles key generation, subkey creation, S-box substitution,
-    P-box permutation, and the full Feistel network for 64-bit block encryption and decryption.
-
-    Attributes:
-        rounds (int): The number of Feistel rounds (default is 16 for standard DES).
-        permutation (DESPermutation): Helper object for various permutations (IP, EP, PC-1, PC-2, P-box).
-        bit_converter (DESBitConverter): Helper object for string-to-binary and binary-to-string conversions.
-        parser (DESParser): Helper object for 64-bit block parsing and padding/deparsing.
-        generator (DesGenerator): Helper object for generating random alphabets and permutations.
-        key_64bits (str): The 64-bit encryption key in binary format.
-        subkeys (list[str]): A list containing the 16 48-bit subkeys used for the rounds.
-        sbox_tables (list[list[int]]): A list of 8 S-box tables (each containing 64 4-bit integers).
-
-    Args:
-        key_64bits (str, optional): A user-provided 64-bit key string in binary format.
-                                    If None, a random 64-bit key is generated. Defaults to None.
-        rounds (int, optional): The number of DES rounds to perform. Defaults to 16.
-
-    Raises:
-        ValueError: If a provided key_64bits is not exactly 64 bits long.
-    """
-
     def __init__(self, key_64bits: str = None, rounds: int = 16):
         self.rounds = rounds
         self.permutation = DESPermutation()
@@ -104,23 +81,30 @@ class DESEncryption:
             list[str]: A list of 16 subkeys of 48 bits each.
         """
         key_64bits = self.key_64bits
-        block_pc1_size = 64
-        if len(key_64bits) != block_pc1_size:
+        block_key_size = 64
+        if len(key_64bits) != block_key_size:
             raise ValueError(
-                f"Key size mismatch: expected {block_pc1_size} bits, got {len(key_64bits)} bits."
+                f"Key size mismatch: expected {block_key_size} bits, got {len(key_64bits)} bits."
+            )
+        # 1. Apply Permuted_choice_1
+        key_56bits, parity_8bits = self.permutation.permuted_choice_1(key_64bits)
+
+        block_permuted_choice_1_size = 56
+        if len(key_56bits) != block_permuted_choice_1_size:
+            raise ValueError(
+                f"Key size mismatch after PC-1: expected {block_permuted_choice_1_size} bits, got {len(key_56bits)} bits."
             )
 
-        # 1. Apply Permuted_choice_1
-        key_56bits = self.permutation.permuted_choice_1(key_64bits)
-        block_pc1_size = 56
-        if len(key_56bits) != block_pc1_size:
+        parity_permuted_choice_1_size = 8
+        if len(parity_8bits) != parity_permuted_choice_1_size:
             raise ValueError(
-                f"Key size mismatch after PC-1: expected {block_pc1_size} bits, got {len(key_56bits)} bits."
+                f"Key size mismatch: expected {parity_permuted_choice_1_size} bits, got {len(parity_8bits)} bits."
             )
+
         # 2. Split into left and right 28 bits
-        half_block_pc1_size = block_pc1_size // 2
-        C = key_56bits[:half_block_pc1_size]
-        D = key_56bits[half_block_pc1_size:]
+        half_block_permuted_choice_1_size = block_permuted_choice_1_size // 2
+        C = key_56bits[:half_block_permuted_choice_1_size]
+        D = key_56bits[half_block_permuted_choice_1_size:]
 
         # 3. Generate 16 subkeys of 48 bits each
         subkeys_48bits = []
