@@ -664,14 +664,18 @@ def run_custom_rotor_machine_test():
 
     Returns:
         bool: True if the test passes, False otherwise."""
+    des_generator = DesGenerator()
+    custom_rotor1 = des_generator.random_all_ascii()
+    custom_rotor2 = des_generator.random_all_ascii()
+    custom_rotor3 = des_generator.random_all_ascii()
     rotor_machine = RotorMachine(
-        list("EKMFLGDQVZNTOWYHXUSPAIBRCJ") + list("ekmflgdqvzntowyhxuspaibrcj"),
-        list("AJDKSIRUXBLHWTMCQGZNPYFVOE") + list("ajdksiruxblhwtmcqgznpyfvoe"),
-        list("BDFHJLCPRTXVZNYEIWGAKMUSQO") + list("bdfhjlcprtxvznyeiwgakmusqo"),
+        rotor1=custom_rotor1, rotor2=custom_rotor2, rotor3=custom_rotor3
     )
     test_string = "Run custom rotor machine test."
     encrypted = rotor_machine.encrypt(test_string)
     decrypted = rotor_machine.decrypt(encrypted)
+    print(encrypted)
+    print(decrypted)
     return test_string == decrypted
 
 

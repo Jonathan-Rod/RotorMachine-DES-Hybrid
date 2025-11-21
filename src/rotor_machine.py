@@ -2,8 +2,7 @@ from des_generator import DesGenerator
 
 
 class RotorMachine:
-    # Note I am assuming rotors are length 52 (A-Z) + (a-z)
-    # TODO add support to other ascii characters (Printable Characters (32-126): Includes letters (both uppercase and lowercase), digits (0-9), punctuation marks, and special symbols.
+    # Note I am assuming rotors are length 128 for all ASCII characters
     def __init__(
         self,
         rotor1: list[str] = None,
@@ -14,24 +13,23 @@ class RotorMachine:
         self.generator = DesGenerator()
 
         if rotor1 is None:
-            self.rotor1_original = self.get_combined_alphabet()
+            self.rotor1_original = self.generator.random_all_ascii()
         else:
             self.rotor1_original = rotor1
 
         if rotor2 is None:
-            self.rotor2_original = self.get_combined_alphabet()
+            self.rotor2_original = self.generator.random_all_ascii()
         else:
             self.rotor2_original = rotor2
 
         if rotor3 is None:
-            self.rotor3_original = self.get_combined_alphabet()
+            self.rotor3_original = self.generator.random_all_ascii()
         else:
             self.rotor3_original = rotor3
 
-        self.rotor_length = 52  # 26 uppercase + 26 lowercase
-        sorted_alphabet = sorted(
-            list("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
-        )
+        self.rotor_length = len(self.rotor1_original)  # 128 ascii length
+        sorted_alphabet = sorted(self.generator.random_all_ascii())
+
         for i, rotor in enumerate(
             [self.rotor1_original, self.rotor2_original, self.rotor3_original], start=1
         ):
@@ -40,16 +38,6 @@ class RotorMachine:
                     f"Rotor {i} must contain 26 unique uppercase and 26 unique lowercase letters."
                 )
         self.reset_rotors()
-
-    def get_combined_alphabet(self) -> list[str]:
-        """Returns the combined alphabet of lowercase and uppercase letters.
-
-        Returns:
-            list[str]: A list of 52 unique characters (a-z and A-Z)
-        """
-        return self.generator.random_alphabet() + [
-            character.lower() for character in self.generator.random_alphabet()
-        ]
 
     def reset_rotors(self):
         """

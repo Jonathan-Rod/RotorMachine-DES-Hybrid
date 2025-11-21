@@ -5,15 +5,15 @@ class DesGenerator:
     def __init__(self, seed=None):
         self.random_generator = Random(seed)
 
-    def random_alphabet(self) -> list[str]:
-        """Returns a shuffled alphabet upper string.
+    def random_all_ascii(self) -> list[str]:
+        """Returns all ASCII characters (0-127) shuffled.
 
         Returns:
-            list[str]: A list of shuffled alphabet upper characters.
+            List[str]: A list of all ASCII characters in random order
         """
-        alphabet = list("QWERTYUIOPASDFGHJKLZXCVBNM")
-        self.random_generator.shuffle(alphabet)
-        return alphabet
+        all_ascii = [chr(i) for i in range(0, 128)]
+        self.random_generator.shuffle(all_ascii)
+        return all_ascii
 
     def random_permutation(self, input_size: int, output_size: int) -> list[int]:
         """Returns a list of output_size random integers in the range [0, input_size - 1].
