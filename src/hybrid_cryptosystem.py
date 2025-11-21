@@ -6,7 +6,7 @@ class HybridCryptosystem:
     """
     Implements a two-layer hybrid cryptographic system.
 
-    It combines the stream cipher characteristics of a RotorMachine (Layer 1) 
+    It combines the stream cipher characteristics of a RotorMachine (Layer 1)
     with the block cipher strength of DESEncryption (Layer 2) for enhanced security.
     Encryption flow: Plaintext -> RotorMachine -> DESEncryption -> Ciphertext (M -> E1 -> E2).
     Decryption flow (Inverse Key): Ciphertext -> DESEncryption -> RotorMachine -> Plaintext (M -> D1 -> D2).
@@ -34,7 +34,7 @@ class HybridCryptosystem:
         The DES encryption and decryption operations have a time complexity of O(1) since they operate on 64-bit blocks
         Therefore, the overall time complexity of the encryption and decryption processes is O(n) + O(k) where k is the number of rounds to each block
         """
-        
+
         self._reset_variables()
         # 1. Encrypt using the rotor machine
         self.E1 = self.rotor_machine.encrypt(M)
@@ -67,12 +67,13 @@ class HybridCryptosystem:
     encryption or decryption operation.
 
     Raises:
-        ValueError: If the corresponding intermediate variable has not been set 
+        ValueError: If the corresponding intermediate variable has not been set
                 (i.e., if encrypt() or decrypt() has not been called).
 
     Returns:
         str: The stored intermediate result string.
     """
+
     def get_E1(self):
         if self.E1 is None:
             raise ValueError("E1 is not set.")
@@ -102,14 +103,3 @@ class HybridCryptosystem:
         self.E2 = None
         self.D1 = None
         self.D2 = None
-
-
-if __name__ == "__main__":
-    hybrid_crypto = HybridCryptosystem()
-    plaintext = "This is the hybrid cryptosystem test."
-    encrypted_text = hybrid_crypto.encrypt(plaintext)
-    decrypted_text = hybrid_crypto.decrypt(encrypted_text)
-
-    print(f"Plaintext: {plaintext}")
-    print(f"Encrypted Text: {encrypted_text}")
-    print(f"Decrypted Text: {decrypted_text}")

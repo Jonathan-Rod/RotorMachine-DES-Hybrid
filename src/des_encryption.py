@@ -371,12 +371,3 @@ class DESEncryption:
         # 5. Join encrypted blocks and convert to string
         plaintext = self.bit_converter.binary_to_str(deparsed_decrypted_binary)
         return plaintext
-
-
-if __name__ == "__main__":
-    des = DESEncryption()
-    plaintext = "Hemos terminado la implementación de DES."
-    ciphertext = des.encrypt(plaintext)
-    print(f"Ciphertext: {ciphertext}")
-    decrypted_text = des.decrypt(ciphertext)
-    print(f"Decrypted text: {decrypted_text}")

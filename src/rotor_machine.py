@@ -108,7 +108,6 @@ class RotorMachine:
             char3 = self.rotor3[self.rotor2.index(char2)]
             output_char = char3
 
-
         self.rotate_rotors()
 
         return output_char
@@ -192,18 +191,3 @@ class RotorMachine:
             "rotor2_current": self.rotor2[0],
             "rotor3_current": self.rotor3[0],
         }
-
-
-if __name__ == "__main__":
-
-    rotor_machine = RotorMachine()
-
-    plaintext = "Hemos terminado la implementación de rotors."
-
-    ciphertext = rotor_machine.encrypt(plaintext)
-    print(rotor_machine.get_rotor_state_dict())
-    print(f"Ciphertext: {ciphertext}")
-
-    decrypted_text = rotor_machine.decrypt(ciphertext)
-    print(rotor_machine.get_rotor_state_dict())
-    print(f"Decrypted text: {decrypted_text}")

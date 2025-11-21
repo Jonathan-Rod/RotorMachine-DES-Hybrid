@@ -56,8 +56,8 @@ class DESParser:
         """
         Combines the decrypted binary blocks and removes padding from the end.
 
-        Padding is checked by looking at the last byte (8 bits) of the combined 
-        binary string to determine the padding value (N). If the last N bytes 
+        Padding is checked by looking at the last byte (8 bits) of the combined
+        binary string to determine the padding value (N). If the last N bytes
         match the expected padding pattern, they are removed.
 
         Args:
@@ -94,16 +94,3 @@ class DESParser:
         else:
             # If padding is not correct, return the original string
             return combined
-
-from des_bit_converter import DESBitConverter
-
-if __name__ == "__main__":
-    des_parser = DESParser()
-    des_bit_converter = DESBitConverter()
-    test_string = "Hello"
-    binary = des_bit_converter.str_to_binary(test_string)
-    print(f"String to binary: {binary}")
-    blocks = des_parser.parse(binary)
-    print(f"Blocks: {blocks}")
-    converted_back = des_bit_converter.binary_to_str(des_parser.deparse(blocks))
-    print(f"Binary to string: {converted_back}")

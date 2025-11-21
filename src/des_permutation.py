@@ -193,32 +193,3 @@ class DESPermutation:
                 f"Block size mismatch: expected 64 bits, got {len(block_64bits)} bits."
             )
         return self.permutate(block_64bits, self.inverse_initial_permutation_table)
-
-
-if __name__ == "__main__":
-    des_perm = DESPermutation()
-
-    # Test con datos de ejemplo
-    test_64bit = "0" * 64  # Bloque de 64 ceros
-    test_32bit = "1" * 32  # Bloque de 32 unos
-    test_56bit = "01" * 28  # Bloque de 56 bits alternados
-
-    print("Testing DES Permutations...")
-
-    # Test initial permutation
-    permuted = des_perm.initial_permutation(test_64bit)
-    print(f"Initial permutation: {len(permuted)} bits")
-
-    # Test inverse permutation
-    original = des_perm.inverse_initial_permutation(permuted)
-    print(f"Inverse works: {test_64bit == original}")
-
-    # Test expansion
-    expanded = des_perm.expansion(test_32bit)
-    print(f"Expansion: {len(expanded)} bits")
-
-    # Test P-box
-    pbox_result = des_perm.p_box(test_32bit)
-    print(f"P-box: {len(pbox_result)} bits")
-
-    print("All tests completed!")
