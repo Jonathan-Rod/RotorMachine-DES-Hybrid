@@ -101,16 +101,17 @@ class RotorMachine:
                  not part of the rotor alphabet (e.g., punctuation or space).
         """
         if char1 not in self.rotor1:
-            return char1
+            output_char = char1
+        else:
+            output_char = char1
+            char2 = self.rotor2[self.rotor1.index(char1)]
+            char3 = self.rotor3[self.rotor2.index(char2)]
+            output_char = char3
 
-        # Here is the ecryption logic
-        char2 = self.rotor2[self.rotor1.index(char1)]  # O(1)
-        char3 = self.rotor3[self.rotor2.index(char2)]  # O(1)
 
-        # Apply rotation after each character
-        self.rotate_rotors()  # O(N)
+        self.rotate_rotors()
 
-        return char3
+        return output_char
 
     def decrypt_char(self, char3):
         """
@@ -127,16 +128,16 @@ class RotorMachine:
                  not part of the rotor alphabet.
         """
         if char3 not in self.rotor3:
-            return char3
+            output_char = char3
 
-        # Here is the decryption logic
-        char2 = self.rotor2[self.rotor3.index(char3)]
-        char1 = self.rotor1[self.rotor2.index(char2)]
+        else:
+            char2 = self.rotor2[self.rotor3.index(char3)]
+            char1 = self.rotor1[self.rotor2.index(char2)]
+            output_char = char1
 
-        # Apply rotation after each character
         self.rotate_rotors()
 
-        return char1
+        return output_char
 
     def encrypt(self, text):
         """
@@ -195,7 +196,12 @@ class RotorMachine:
 
 if __name__ == "__main__":
 
-    rotor_machine = RotorMachine()
+    # Using custom rotors
+    rotor1 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    rotor2 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    rotor3 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+    rotor_machine = RotorMachine(rotor1=rotor1, rotor2=rotor2, rotor3=rotor3)
+
     plaintext = "Hemos terminado la implementación de rotors."
 
     ciphertext = rotor_machine.encrypt(plaintext)
