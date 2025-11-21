@@ -718,7 +718,7 @@ def hybrid_cryptosystem_test():
     return True
 
 
-def main():
+def run_all_tests():
     """Main entry point for the program. Runs all tests and prints the results of each test."""
 
     results = []
@@ -773,4 +773,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run_all_tests()
