@@ -2,55 +2,53 @@ from des_generator import DesGenerator
 
 
 class RotorMachine:
-    """
-    Implements a basic three-rotor cipher machine.
-
-    The machine uses three distinct rotor wirings (permutation alphabets) generated
-    randomly by a DesGenerator instance upon initialization.
-    """
-
+    # Note I am assuming rotors are length 52 (A-Z) + (a-z)
     def __init__(
         self,
         rotor1: list[str] = None,
         rotor2: list[str] = None,
         rotor3: list[str] = None,
     ):
-        """
-        Initializes the RotorMachine with either custom or randomly generated rotor wirings.
-
-        If custom rotors are provided, they must each contain exactly 26 unique characters.
-        If no rotors are provided, three random rotor wirings will be generated using DesGenerator.
-
-        Args:
-            rotor1: Optional custom wiring for rotor 1 (default: randomly generated)
-            rotor2: Optional custom wiring for rotor 2 (default: randomly generated)
-            rotor3: Optional custom wiring for rotor 3 (default: randomly generated)
-
-        Raises:
-            ValueError: If a rotor does not contain 26 unique characters.
-        """
 
         self.generator = DesGenerator()
 
         if rotor1 is None:
-            rotor1 = self.generator.random_alphabet()
-        if rotor2 is None:
-            rotor2 = self.generator.random_alphabet()
-        if rotor3 is None:
-            rotor3 = self.generator.random_alphabet()
+            self.rotor1_original = self.get_combined_alphabet()
+        else:
+            self.rotor1_original = rotor1
 
-        self.rotor1_original = rotor1
-        self.rotor2_original = rotor2
-        self.rotor3_original = rotor3
-        self.rotor_length = 26
+        if rotor2 is None:
+            self.rotor2_original = self.get_combined_alphabet()
+        else:
+            self.rotor2_original = rotor2
+
+        if rotor3 is None:
+            self.rotor3_original = self.get_combined_alphabet()
+        else:
+            self.rotor3_original = rotor3
+
+        self.rotor_length = 52  # 26 uppercase + 26 lowercase
+        sorted_alphabet = sorted(
+            list("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
+        )
         for i, rotor in enumerate(
             [self.rotor1_original, self.rotor2_original, self.rotor3_original], start=1
         ):
-            if len(set(rotor)) != self.rotor_length:
+            if sorted(rotor) != sorted_alphabet:
                 raise ValueError(
-                    f"Rotor {i} must contain {self.rotor_length} unique characters."
+                    f"Rotor {i} must contain 26 unique uppercase and 26 unique lowercase letters."
                 )
         self.reset_rotors()
+
+    def get_combined_alphabet(self) -> list[str]:
+        """Returns the combined alphabet of lowercase and uppercase letters.
+
+        Returns:
+            list[str]: A list of 52 unique characters (a-z and A-Z)
+        """
+        return self.generator.random_alphabet() + [
+            character.lower() for character in self.generator.random_alphabet()
+        ]
 
     def reset_rotors(self):
         """
@@ -71,8 +69,8 @@ class RotorMachine:
         Rotates the rotors according to the internal stepping mechanism.
 
         Rotor 1 (fastest) rotates every character input.
-        Rotor 2 rotates when Rotor 1 completes half a revolution.
-        Rotor 3 rotates when Rotor 2 completes a full revolution.
+        Rotor 2 (medium) rotates when Rotor 1 completes half a revolution.
+        Rotor 3 (lowest) rotates when Rotor 2 completes a full revolution.
         """
         # Fast rotor
         self.rotor1 = self.rotor1[1:] + [self.rotor1[0]]
@@ -154,7 +152,7 @@ class RotorMachine:
         """
         self.reset_rotors()
         encrypted_text = ""
-        for char in text.upper():
+        for char in text:
             encrypted_text += self.encrypt_char(char)
         return encrypted_text
 
@@ -172,7 +170,7 @@ class RotorMachine:
         """
         self.reset_rotors()
         decrypted_text = ""
-        for char in text.upper():
+        for char in text:
             decrypted_text += self.decrypt_char(char)
         return decrypted_text
 
@@ -197,12 +195,7 @@ class RotorMachine:
 
 if __name__ == "__main__":
 
-    # Using custom rotors
-    rotor1 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    rotor2 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    rotor3 = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
-    rotor_machine = RotorMachine(rotor1=rotor1, rotor2=rotor2, rotor3=rotor3)
-
+    rotor_machine = RotorMachine()
     plaintext = "Hemos terminado la implementación de rotors."
 
     ciphertext = rotor_machine.encrypt(plaintext)

@@ -6,10 +6,10 @@ class DesGenerator:
         self.random_generator = Random(seed)
 
     def random_alphabet(self) -> list[str]:
-        """Returns a shuffled alphabet string.
+        """Returns a shuffled alphabet upper string.
 
         Returns:
-            list[str]: A list of shuffled alphabet characters.
+            list[str]: A list of shuffled alphabet upper characters.
         """
         alphabet = list("QWERTYUIOPASDFGHJKLZXCVBNM")
         self.random_generator.shuffle(alphabet)
